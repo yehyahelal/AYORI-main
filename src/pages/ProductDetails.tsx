@@ -177,7 +177,7 @@ const ProductDetails = () => {
                                 <Badge variant="secondary" className="mb-4">{category || "Product"}</Badge>
                                 <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 text-foreground">{title}</h1>
                                 <p className="text-3xl font-bold text-primary">
-                                    ${Number(price).toFixed(2)}
+                                    EGP {Number(price).toFixed(2)}
                                 </p>
                             </div>
 
@@ -194,6 +194,7 @@ const ProductDetails = () => {
                                             size="icon"
                                             className="rounded-full h-8 w-8"
                                             onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                            disabled={product.inventory_count === 0}
                                         >
                                             <Minus className="w-4 h-4" />
                                         </Button>
@@ -202,32 +203,35 @@ const ProductDetails = () => {
                                             variant="ghost"
                                             size="icon"
                                             className="rounded-full h-8 w-8"
-                                            onClick={() => setQuantity(quantity + 1)}
+                                            onClick={() => setQuantity(Math.min(product.inventory_count || 0, quantity + 1))}
+                                            disabled={product.inventory_count === 0 || quantity >= (product.inventory_count || 0)}
                                         >
                                             <Plus className="w-4 h-4" />
                                         </Button>
                                     </div>
+                                    <span className="text-sm text-muted-foreground">
+                                        {product.inventory_count === 0 ? (
+                                            <span className="text-destructive font-semibold">Out of Stock</span>
+                                        ) : (
+                                            `${product.inventory_count} available`
+                                        )}
+                                    </span>
                                 </div>
 
                                 <div className="flex gap-4">
-                                    <Button variant="hero" size="lg" className="flex-1 text-lg h-14" onClick={handleAddToCart}>
+                                    <Button 
+                                        variant={product.inventory_count === 0 ? "secondary" : "hero"} 
+                                        size="lg" 
+                                        className="flex-1 text-lg h-14" 
+                                        onClick={handleAddToCart}
+                                        disabled={product.inventory_count === 0}
+                                    >
                                         <ShoppingCart className="w-5 h-5 mr-2" />
-                                        Add to Cart
+                                        {product.inventory_count === 0 ? "Sold Out" : "Add to Cart"}
                                     </Button>
                                 </div>
                             </div>
 
-                            {/* Additional Details could go here (Shipping, Returns, etc.) */}
-                            <div className="grid grid-cols-2 gap-4 pt-8 border-t">
-                                <div className="p-4 bg-card rounded-2xl">
-                                    <h3 className="font-bold mb-2">Free Shipping</h3>
-                                    <p className="text-sm text-muted-foreground">On orders over $50</p>
-                                </div>
-                                <div className="p-4 bg-card rounded-2xl">
-                                    <h3 className="font-bold mb-2">Easy Returns</h3>
-                                    <p className="text-sm text-muted-foreground">30-day money back guarantee</p>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

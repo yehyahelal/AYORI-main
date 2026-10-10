@@ -105,16 +105,23 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
           <div className="flex items-center justify-between mt-4">
             <span className="font-display text-xl font-bold text-primary">
-              ${Number(product.price).toFixed(2)}
+              EGP {Number(product.price).toFixed(2)}
             </span>
             <Button
               size="sm"
-              variant="default"
+              variant={product.inventory_count === 0 ? "secondary" : "default"}
               onClick={handleAddToCart}
               className="rounded-full"
+              disabled={product.inventory_count === 0}
             >
-              <ShoppingCart className="w-4 h-4 mr-1" />
-              Add
+              {product.inventory_count === 0 ? (
+                "Sold Out"
+              ) : (
+                <>
+                  <ShoppingCart className="w-4 h-4 mr-1" />
+                  Add
+                </>
+              )}
             </Button>
           </div>
         </div>

@@ -16,6 +16,8 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Shop = lazy(() => import("./pages/Shop"));
 const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Orders = lazy(() => import("./pages/Orders"));
 
 import { AuthModal } from "@/components/AuthModal";
 
@@ -41,7 +43,9 @@ const App = () => (
               <Route path="/cart" element={<Cart />} />
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/checkout" element={<Checkout />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/orders" element={<Orders />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

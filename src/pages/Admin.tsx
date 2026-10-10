@@ -22,6 +22,8 @@ export default function Admin() {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deliveryFee, setDeliveryFee] = useState('50');
+  const [isSavingFee, setIsSavingFee] = useState(false);
 
   // Form state
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -29,6 +31,7 @@ export default function Admin() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [productType, setProductType] = useState('');
+  const [inventoryCount, setInventoryCount] = useState('0');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
 
@@ -45,12 +48,37 @@ export default function Admin() {
     enabled: !!user
   });
 
+  // Fetch settings
+  useEffect(() => {
+    if (isAdmin) {
+      supabase.from('store_settings').select('value').eq('key', 'delivery_fee').single()
+        .then(({ data }) => {
+          if (data) setDeliveryFee(data.value);
+        });
+    }
+  }, [isAdmin]);
+
+  const handleSaveFee = async () => {
+    setIsSavingFee(true);
+    const { error } = await supabase
+      .from('store_settings')
+      .upsert({ key: 'delivery_fee', value: deliveryFee });
+      
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to save fee', variant: 'destructive' });
+    } else {
+      toast({ title: 'Success', description: 'Delivery fee saved' });
+    }
+    setIsSavingFee(false);
+  };
+
   const resetForm = () => {
     setEditingId(null);
     setTitle('');
     setDescription('');
     setPrice('');
     setProductType('');
+    setInventoryCount('0');
     setImageFiles([]);
     setExistingImages([]);
   };
@@ -61,6 +89,7 @@ export default function Admin() {
     setDescription(product.description || '');
     setPrice(product.price.toString());
     setProductType(product.category || '');
+    setInventoryCount(product.inventory_count?.toString() || '0');
     setExistingImages(product.images || []);
     setImageFiles([]);
     setIsDialogOpen(true);
@@ -128,6 +157,7 @@ export default function Admin() {
         description,
         price: parseFloat(price),
         category: productType,
+        inventory_count: parseInt(inventoryCount, 10) || 0,
         images: finalImages
       };
 
@@ -237,13 +267,31 @@ export default function Admin() {
             <p className="text-muted-foreground mt-1">Manage your cuddly products</p>
           </div>
           
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="hero" className="gap-2" onClick={handleOpenAdd}>
-                <Plus className="h-4 w-4" />
-                Add Product
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 mr-4 border-r pr-4">
+              <Label htmlFor="deliveryFee" className="whitespace-nowrap">Delivery Fee (EGP)</Label>
+              <Input 
+                id="deliveryFee" 
+                type="number" 
+                className="w-20 h-9" 
+                value={deliveryFee}
+                onChange={(e) => setDeliveryFee(e.target.value)}
+              />
+              <Button size="sm" variant="secondary" onClick={handleSaveFee} disabled={isSavingFee}>
+                {isSavingFee ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
               </Button>
-            </DialogTrigger>
+            </div>
+            <Button variant="outline" onClick={() => navigate('/admin/orders')}>
+              <Package className="h-4 w-4 mr-2" />
+              View Orders
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="hero" className="gap-2" onClick={handleOpenAdd}>
+                  <Plus className="h-4 w-4" />
+                  Add Product
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="font-display text-2xl">
@@ -280,7 +328,7 @@ export default function Admin() {
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="price">Price ($)</Label>
+                      <Label htmlFor="price">Price (EGP)</Label>
                       <Input
                         id="price"
                         type="number"
@@ -299,6 +347,18 @@ export default function Admin() {
                         placeholder="Bears"
                         value={productType}
                         onChange={(e) => setProductType(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="inventory">Inventory Count</Label>
+                      <Input
+                        id="inventory"
+                        type="number"
+                        min="0"
+                        value={inventoryCount}
+                        onChange={(e) => setInventoryCount(e.target.value)}
+                        required
                       />
                     </div>
                   </div>
@@ -362,6 +422,7 @@ export default function Admin() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         <Card className="border-2 border-primary/10">
@@ -387,6 +448,7 @@ export default function Admin() {
                     <TableHead>Name</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Price</TableHead>
+                    <TableHead>Stock</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -416,7 +478,10 @@ export default function Admin() {
                       <TableCell className="font-medium">{product.title}</TableCell>
                       <TableCell>{product.category || '-'}</TableCell>
                       <TableCell>
-                        ${Number(product.price).toFixed(2)}
+                        EGP {Number(product.price).toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        {product.inventory_count || 0}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button

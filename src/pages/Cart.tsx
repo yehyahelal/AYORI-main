@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 const Cart = () => {
   const { items, updateQuantity, removeItem, isLoading, createCheckout } = useCartStore();
   const totalPrice = items.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0);
-  const currency = "$";
+  const currency = "EGP";
 
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -19,9 +19,7 @@ const Cart = () => {
       navigate('/auth');
       return;
     }
-    await createCheckout();
-    const url = useCartStore.getState().checkoutUrl;
-    if (url) window.open(url, "_blank");
+    navigate('/checkout');
   };
 
   return (
@@ -58,7 +56,15 @@ const Cart = () => {
                       <div className="flex items-center gap-2">
                         <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity - 1)}><Minus className="w-3 h-3" /></Button>
                         <span className="w-8 text-center">{item.quantity}</span>
-                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity + 1)}><Plus className="w-3 h-3" /></Button>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-8 w-8" 
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                          disabled={item.quantity >= (item.product.inventory_count || 0)}
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
                       </div>
                     </div>
                   </div>

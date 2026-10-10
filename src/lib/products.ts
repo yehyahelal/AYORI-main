@@ -7,6 +7,7 @@ export interface Product {
   description: string;
   price: number;
   category: string;
+  inventory_count: number;
   images: string[];
   created_at?: string;
 }
