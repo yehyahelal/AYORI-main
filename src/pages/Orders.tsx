@@ -469,24 +469,24 @@ export default function Orders() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             {isAdmin && (
               <>
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={() => setIsEmailModalOpen(true)}
-                  className="gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-foreground"
+                  className="gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-foreground h-9 text-xs sm:text-sm rounded-xl"
                 >
                   <Mail className="h-4 w-4 text-primary" />
                   Email Alerts
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => navigate('/admin')}>
+                <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="h-9 text-xs sm:text-sm rounded-xl">
                   Manage Products
                 </Button>
               </>
             )}
-            <Button variant="playful" size="sm" onClick={() => navigate('/products')}>
+            <Button variant="playful" size="sm" onClick={() => navigate('/products')} className="h-9 text-xs sm:text-sm rounded-xl">
               Shop Plushies
             </Button>
           </div>
@@ -612,39 +612,27 @@ export default function Orders() {
                 <p className="text-xs text-muted-foreground">Loading orders list...</p>
               </div>
             ) : filteredOrders.length > 0 ? (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/30 hover:bg-muted/30">
-                      <TableHead className="font-bold text-xs uppercase tracking-wider pl-6">Order ID</TableHead>
-                      <TableHead className="font-bold text-xs uppercase tracking-wider">Date</TableHead>
-                      <TableHead className="font-bold text-xs uppercase tracking-wider">Customer</TableHead>
-                      <TableHead className="font-bold text-xs uppercase tracking-wider">Contact</TableHead>
-                      <TableHead className="font-bold text-xs uppercase tracking-wider">Total</TableHead>
-                      <TableHead className="font-bold text-xs uppercase tracking-wider">Status</TableHead>
-                      <TableHead className="font-bold text-xs uppercase tracking-wider text-right pr-6">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredOrders.map((order) => {
-                      const orderNumber = formatOrderNumber(order);
-                      const isThisCopied = copiedId === orderNumber;
+              <>
+                {/* 1. Mobile Cards View (Visible on screens < md) */}
+                <div className="block md:hidden divide-y divide-border/60">
+                  {filteredOrders.map((order) => {
+                    const orderNumber = formatOrderNumber(order);
+                    const isThisCopied = copiedId === orderNumber;
 
-                      return (
-                        <TableRow key={order.id} className="hover:bg-muted/40 transition-colors">
-                          {/* Order ID column formatted as #123456 */}
-                          <TableCell className="pl-6 font-mono font-bold">
+                    return (
+                      <div key={order.id} className="p-4 hover:bg-muted/20 transition-colors flex flex-col gap-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
                             <div className="flex items-center gap-1.5">
                               <span 
                                 onClick={() => handleViewOrder(order)}
-                                className="text-primary hover:underline cursor-pointer text-sm"
-                                title="Click to view details"
+                                className="font-mono font-bold text-primary hover:underline cursor-pointer text-sm"
                               >
                                 {orderNumber}
                               </span>
                               <button
                                 onClick={() => handleCopy(orderNumber)}
-                                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
                                 title="Copy Order ID"
                               >
                                 {isThisCopied ? (
@@ -654,86 +642,199 @@ export default function Orders() {
                                 )}
                               </button>
                             </div>
-                          </TableCell>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                              {new Date(order.created_at).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </p>
+                          </div>
 
-                          {/* Date */}
-                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                            {new Date(order.created_at).toLocaleDateString(undefined, {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
-                          </TableCell>
-
-                          {/* Customer */}
-                          <TableCell className="font-semibold text-sm">
-                            {order.customer_name}
-                          </TableCell>
-
-                          {/* Contact */}
-                          <TableCell className="text-xs text-muted-foreground">
-                            <div>{order.customer_email}</div>
-                            {order.phone_number && (
-                              <div className="font-mono text-[11px] text-muted-foreground/80">{order.phone_number}</div>
-                            )}
-                          </TableCell>
-
-                          {/* Total */}
-                          <TableCell className="font-bold text-sm text-foreground whitespace-nowrap">
+                          <span className="font-display font-extrabold text-foreground text-sm whitespace-nowrap">
                             EGP {Number(order.total_amount).toFixed(2)}
-                          </TableCell>
+                          </span>
+                        </div>
 
-                          {/* Status */}
-                          <TableCell>
+                        <div className="text-xs text-muted-foreground bg-muted/40 p-2.5 rounded-xl border border-border/50">
+                          <p className="font-semibold text-foreground">{order.customer_name}</p>
+                          <p className="truncate text-muted-foreground">{order.customer_email}</p>
+                          {order.phone_number && (
+                            <p className="font-mono text-[11px] text-muted-foreground/90 mt-0.5">{order.phone_number}</p>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 pt-1">
+                          <div className="flex-1 min-w-0">
                             <OrderStatusSelect
                               status={order.status}
                               onStatusChange={isAdmin ? (newStatus) => handleStatusChangeRequest(order, newStatus) : undefined}
                               disabled={!isAdmin || Boolean(order.is_closed)}
                               isClosed={Boolean(order.is_closed)}
                             />
-                          </TableCell>
+                          </div>
 
-                          {/* Action */}
-                          <TableCell className="text-right pr-6">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => handleViewOrder(order)}
-                                className="h-7 px-2.5 gap-1 font-semibold text-xs text-primary hover:text-primary hover:bg-primary/10"
-                              >
-                                <Eye className="w-3.5 h-3.5" /> View
-                              </Button>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleViewOrder(order)}
+                              className="h-8 px-2.5 text-xs gap-1 font-semibold text-primary border-primary/20 hover:bg-primary/10 rounded-xl"
+                            >
+                              <Eye className="w-3.5 h-3.5" /> Details
+                            </Button>
 
-                              {isAdmin && (
-                                order.is_closed ? (
-                                  <span 
-                                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 select-none"
-                                    title="Order is closed and locked"
-                                  >
-                                    <Lock className="w-3 h-3" /> Closed
-                                  </span>
-                                ) : (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleRequestCloseOrder(order)}
-                                    className="h-7 px-2 text-[11px] gap-1 text-slate-600 hover:text-slate-900 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium"
-                                    title="Close and permanently lock this order"
-                                  >
-                                    <Lock className="w-3 h-3 text-slate-500" />
-                                    Close
-                                  </Button>
-                                )
+                            {isAdmin && (
+                              order.is_closed ? (
+                                <span 
+                                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 select-none"
+                                >
+                                  <Lock className="w-3 h-3" /> Locked
+                                </span>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleRequestCloseOrder(order)}
+                                  className="h-8 px-2 text-xs gap-1 text-slate-600 hover:text-slate-900 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium rounded-xl"
+                                  title="Close and lock order"
+                                >
+                                  <Lock className="w-3 h-3 text-slate-500" />
+                                  Close
+                                </Button>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* 2. Desktop Table View (Visible on screens >= md) */}
+                <div className="hidden md:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/30 hover:bg-muted/30">
+                        <TableHead className="font-bold text-xs uppercase tracking-wider pl-6">Order ID</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider">Date</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider">Customer</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider">Contact</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider">Total</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider">Status</TableHead>
+                        <TableHead className="font-bold text-xs uppercase tracking-wider text-right pr-6">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredOrders.map((order) => {
+                        const orderNumber = formatOrderNumber(order);
+                        const isThisCopied = copiedId === orderNumber;
+
+                        return (
+                          <TableRow key={order.id} className="hover:bg-muted/40 transition-colors">
+                            {/* Order ID column formatted as #123456 */}
+                            <TableCell className="pl-6 font-mono font-bold">
+                              <div className="flex items-center gap-1.5">
+                                <span 
+                                  onClick={() => handleViewOrder(order)}
+                                  className="text-primary hover:underline cursor-pointer text-sm"
+                                  title="Click to view details"
+                                >
+                                  {orderNumber}
+                                </span>
+                                <button
+                                  onClick={() => handleCopy(orderNumber)}
+                                  className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                  title="Copy Order ID"
+                                >
+                                  {isThisCopied ? (
+                                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                                  ) : (
+                                    <Copy className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
+                              </div>
+                            </TableCell>
+
+                            {/* Date */}
+                            <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                              {new Date(order.created_at).toLocaleDateString(undefined, {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </TableCell>
+
+                            {/* Customer */}
+                            <TableCell className="font-semibold text-sm">
+                              {order.customer_name}
+                            </TableCell>
+
+                            {/* Contact */}
+                            <TableCell className="text-xs text-muted-foreground">
+                              <div>{order.customer_email}</div>
+                              {order.phone_number && (
+                                <div className="font-mono text-[11px] text-muted-foreground/80">{order.phone_number}</div>
                               )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
+                            </TableCell>
+
+                            {/* Total */}
+                            <TableCell className="font-bold text-sm text-foreground whitespace-nowrap">
+                              EGP {Number(order.total_amount).toFixed(2)}
+                            </TableCell>
+
+                            {/* Status */}
+                            <TableCell>
+                              <OrderStatusSelect
+                                status={order.status}
+                                onStatusChange={isAdmin ? (newStatus) => handleStatusChangeRequest(order, newStatus) : undefined}
+                                disabled={!isAdmin || Boolean(order.is_closed)}
+                                isClosed={Boolean(order.is_closed)}
+                              />
+                            </TableCell>
+
+                            {/* Action */}
+                            <TableCell className="text-right pr-6">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => handleViewOrder(order)}
+                                  className="h-7 px-2.5 gap-1 font-semibold text-xs text-primary hover:text-primary hover:bg-primary/10"
+                                >
+                                  <Eye className="w-3.5 h-3.5" /> View
+                                </Button>
+
+                                {isAdmin && (
+                                  order.is_closed ? (
+                                    <span 
+                                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-200 dark:border-slate-700 select-none"
+                                      title="Order is closed and locked"
+                                    >
+                                      <Lock className="w-3 h-3" /> Closed
+                                    </span>
+                                  ) : (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleRequestCloseOrder(order)}
+                                      className="h-7 px-2 text-[11px] gap-1 text-slate-600 hover:text-slate-900 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium"
+                                      title="Close and permanently lock this order"
+                                    >
+                                      <Lock className="w-3 h-3 text-slate-500" />
+                                      Close
+                                    </Button>
+                                  )
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
             ) : (
               <div className="text-center py-16 px-4">
                 <Package className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
@@ -763,7 +864,7 @@ export default function Orders() {
 
       {/* Order Details & Escalation Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl p-6">
+        <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl sm:rounded-3xl p-4 sm:p-6">
           <DialogHeader className="pb-2 border-b">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pr-6">
               <div>

@@ -193,15 +193,15 @@ export function AdminEmailSettingsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl p-6 sm:p-8">
+      <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl sm:rounded-3xl p-4 sm:p-8">
         <DialogHeader className="space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-sm shrink-0">
                 <Mail className="w-5 h-5" />
               </div>
               <div>
-                <DialogTitle className="font-display text-2xl text-foreground">
+                <DialogTitle className="font-display text-xl sm:text-2xl text-foreground">
                   Admin Email Notifications
                 </DialogTitle>
                 <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
@@ -209,15 +209,17 @@ export function AdminEmailSettingsModal({
                 </DialogDescription>
               </div>
             </div>
-            {isConfigured ? (
-              <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-xs font-semibold px-2.5 py-0.5">
-                Configured
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 text-xs font-semibold px-2.5 py-0.5">
-                Setup Required
-              </Badge>
-            )}
+            <div className="self-start sm:self-auto">
+              {isConfigured ? (
+                <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-xs font-semibold px-2.5 py-0.5">
+                  Configured
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 text-xs font-semibold px-2.5 py-0.5">
+                  Setup Required
+                </Badge>
+              )}
+            </div>
           </div>
         </DialogHeader>
 
