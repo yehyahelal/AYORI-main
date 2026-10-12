@@ -209,13 +209,9 @@ const ProductDetails = () => {
                                             <Plus className="w-4 h-4" />
                                         </Button>
                                     </div>
-                                    <span className="text-sm text-muted-foreground">
-                                        {product.inventory_count === 0 ? (
-                                            <span className="text-destructive font-semibold">Out of Stock</span>
-                                        ) : (
-                                            `${product.inventory_count} available`
-                                        )}
-                                    </span>
+                                    {product.inventory_count === 0 && (
+                                        <span className="text-sm text-destructive font-semibold">Out of Stock</span>
+                                    )}
                                 </div>
 
                                 <div className="flex gap-4">

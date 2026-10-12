@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { generateOrderNumber, formatOrderNumber } from "@/lib/orderUtils";
+import { sendOrderNotificationEmail } from "@/lib/emailService";
 
 const Checkout = () => {
   const { user } = useAuth();
@@ -23,8 +25,7 @@ const Checkout = () => {
     email: user?.email || "",
     phone: "",
     address: "",
-    city: "",
-    zipCode: ""
+    city: ""
   });
 
   useEffect(() => {
@@ -68,13 +69,17 @@ const Checkout = () => {
 
     setIsSubmitting(true);
     try {
-      const fullAddress = `${formData.address}, ${formData.city}, ${formData.zipCode}`;
+      const fullAddress = formData.city ? `${formData.address}, ${formData.city}` : formData.address;
+      const uniqueOrderNumber = generateOrderNumber();
 
       // 1. Create the order
-      const { data: order, error: orderError } = await supabase
+      let order: any = null;
+
+      const primaryAttempt = await supabase
         .from('orders')
         .insert({
           user_id: user.id,
+          order_number: uniqueOrderNumber,
           customer_name: formData.name,
           customer_email: formData.email,
           shipping_address: fullAddress,
@@ -85,7 +90,37 @@ const Checkout = () => {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (primaryAttempt.error) {
+        // If order_number column doesn't exist in Supabase yet, retry without it
+        if (
+          primaryAttempt.error.message?.includes('order_number') ||
+          primaryAttempt.error.code === 'PGRST204' ||
+          primaryAttempt.error.details?.includes('order_number')
+        ) {
+          console.warn("order_number column missing in DB, falling back:", primaryAttempt.error);
+          const fallbackAttempt = await supabase
+            .from('orders')
+            .insert({
+              user_id: user.id,
+              customer_name: formData.name,
+              customer_email: formData.email,
+              shipping_address: fullAddress,
+              phone_number: formData.phone,
+              total_amount: totalPrice,
+              status: 'pending'
+            })
+            .select()
+            .single();
+
+          if (fallbackAttempt.error) throw fallbackAttempt.error;
+          order = fallbackAttempt.data;
+          order.order_number = uniqueOrderNumber;
+        } else {
+          throw primaryAttempt.error;
+        }
+      } else {
+        order = primaryAttempt.data;
+      }
 
       // 2. Create order items (Trigger handles inventory!)
       for (const item of items) {
@@ -101,9 +136,29 @@ const Checkout = () => {
         if (itemError) throw itemError;
       }
 
-      toast.success("Order placed successfully!");
+      const displayId = formatOrderNumber(order);
+      toast.success(`Order ${displayId} placed successfully!`);
+      const orderedItemsSnapshot = [...items];
+
+      // 3. Dispatch automated email notification to Admin (non-blocking)
+      sendOrderNotificationEmail({
+        order: { ...order, order_number: order.order_number || uniqueOrderNumber },
+        items: orderedItemsSnapshot,
+        deliveryFee,
+        totalPrice
+      }).catch((emailErr) => {
+        console.warn("Background order email notification error:", emailErr);
+      });
+
       clearCart();
-      navigate('/');
+      navigate(`/order-confirmation/${order.id}`, {
+        state: {
+          order: { ...order, order_number: order.order_number || uniqueOrderNumber },
+          items: orderedItemsSnapshot,
+          deliveryFee,
+          totalPrice
+        }
+      });
     } catch (error: any) {
       console.error(error);
       toast.error(error.message || "Failed to place order");
@@ -139,15 +194,9 @@ const Checkout = () => {
                   <Label htmlFor="address">Street Address</Label>
                   <Input id="address" required value={formData.address} onChange={handleChange} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input id="city" required value={formData.city} onChange={handleChange} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="zipCode">Zip Code</Label>
-                    <Input id="zipCode" required value={formData.zipCode} onChange={handleChange} />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="city">City</Label>
+                  <Input id="city" required value={formData.city} onChange={handleChange} placeholder="e.g. Cairo" />
                 </div>
                 <Button type="submit" className="w-full mt-8" variant="hero" disabled={isSubmitting}>
                   {isSubmitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...</> : `Place Order (EGP ${totalPrice.toFixed(2)})`}

@@ -2,8 +2,11 @@
 ALTER TABLE public.products ADD COLUMN inventory_count INTEGER DEFAULT 0;
 
 -- 2. Create Orders table
+CREATE SEQUENCE IF NOT EXISTS public.order_number_seq START 100001;
+
 CREATE TABLE public.orders (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  order_number TEXT UNIQUE DEFAULT ('#' || nextval('public.order_number_seq')::text),
   user_id UUID REFERENCES auth.users(id),
   customer_name TEXT NOT NULL,
   customer_email TEXT NOT NULL,
@@ -13,6 +16,8 @@ CREATE TABLE public.orders (
   status TEXT DEFAULT 'pending', -- pending, processing, shipped, delivered, cancelled
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS idx_orders_order_number ON public.orders(order_number);
 
 -- 3. Create Order Items table (to link products to orders)
 CREATE TABLE public.order_items (

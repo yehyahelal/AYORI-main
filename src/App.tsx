@@ -18,6 +18,7 @@ const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const Orders = lazy(() => import("./pages/Orders"));
+const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
 
 import { AuthModal } from "@/components/AuthModal";
 
@@ -44,6 +45,9 @@ const App = () => (
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/track-order" element={<Orders />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/orders" element={<Orders />} />
               <Route path="*" element={<NotFound />} />

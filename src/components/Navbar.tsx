@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ShoppingCart, Heart, Menu, X, Gamepad2, User, LogOut, Settings } from "lucide-react";
+import { ShoppingCart, Heart, Menu, X, Gamepad2, User, LogOut, Settings, Package } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCartStore, useWishlistStore } from "@/stores/cartStore";
@@ -113,12 +113,23 @@ export const Navbar = () => {
                     {user.email}
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/orders')}>
+                    <Package className="w-4 h-4 mr-2" />
+                    My Orders
+                  </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem onClick={() => navigate('/admin')}>
                       <Settings className="w-4 h-4 mr-2" />
                       Admin Dashboard
                     </DropdownMenuItem>
                   )}
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate('/admin/orders')}>
+                      <Package className="w-4 h-4 mr-2" />
+                      All Orders (Admin)
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
@@ -180,13 +191,29 @@ export const Navbar = () => {
                   >
                     Cart ({totalItems})
                   </Link>
+                  <Link
+                    to="/orders"
+                    className="flex items-center gap-4 px-2 py-3 text-lg font-medium hover:text-primary transition-colors border-b border-border/50"
+                    onClick={() => setIsSheetOpen(false)}
+                  >
+                    My Orders
+                  </Link>
                   {isAdmin && (
                     <Link
                       to="/admin"
-                      className="flex items-center gap-4 px-2 py-3 text-lg font-medium text-primary hover:text-primary/80 transition-colors"
+                      className="flex items-center gap-4 px-2 py-3 text-lg font-medium text-primary hover:text-primary/80 transition-colors border-b border-border/50"
                       onClick={() => setIsSheetOpen(false)}
                     >
                       Admin Dashboard
+                    </Link>
+                  )}
+                  {isAdmin && (
+                    <Link
+                      to="/admin/orders"
+                      className="flex items-center gap-4 px-2 py-3 text-lg font-medium text-primary hover:text-primary/80 transition-colors"
+                      onClick={() => setIsSheetOpen(false)}
+                    >
+                      All Orders
                     </Link>
                   )}
 

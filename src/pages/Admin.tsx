@@ -11,10 +11,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Trash2, Loader2, Package, Shield, Pencil, X } from 'lucide-react';
+import { Plus, Trash2, Loader2, Package, Shield, Pencil, X, Mail } from 'lucide-react';
 import { fetchProducts, type Product } from '@/lib/products';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
+import { AdminEmailSettingsModal } from '@/components/AdminEmailSettingsModal';
 
 export default function Admin() {
   const { user, isAdmin, loading } = useAuth();
@@ -24,6 +25,7 @@ export default function Admin() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deliveryFee, setDeliveryFee] = useState('50');
   const [isSavingFee, setIsSavingFee] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   // Form state
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -281,6 +283,14 @@ export default function Admin() {
                 {isSavingFee ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
               </Button>
             </div>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsEmailModalOpen(true)}
+              className="gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-foreground"
+            >
+              <Mail className="h-4 w-4 text-primary" />
+              Email Alerts
+            </Button>
             <Button variant="outline" onClick={() => navigate('/admin/orders')}>
               <Package className="h-4 w-4 mr-2" />
               View Orders
@@ -521,6 +531,11 @@ export default function Admin() {
           </CardContent>
         </Card>
       </main>
+
+      <AdminEmailSettingsModal
+        open={isEmailModalOpen}
+        onOpenChange={setIsEmailModalOpen}
+      />
     </div>
   );
 }

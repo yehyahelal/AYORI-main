@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Sparkles, Mail, Instagram, Facebook, Twitter } from "lucide-react";
+import { Sparkles, Mail, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -22,15 +22,16 @@ export const Footer = () => {
               Handmade plush toys crafted with love for your little ones. Every stitch tells a story.
             </p>
             <div className="flex gap-3">
-              <Button variant="ghost" size="icon" className="hover:bg-background/10 text-background/70 hover:text-background">
-                <Instagram className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover:bg-background/10 text-background/70 hover:text-background">
-                <Facebook className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover:bg-background/10 text-background/70 hover:text-background">
-                <Twitter className="w-5 h-5" />
-              </Button>
+              <a
+                href="https://www.instagram.com/yadawi_3/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+              >
+                <Button variant="ghost" size="icon" className="hover:bg-background/10 text-background/70 hover:text-background">
+                  <Instagram className="w-5 h-5" />
+                </Button>
+              </a>
             </div>
           </div>
 
