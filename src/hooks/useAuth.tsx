@@ -24,45 +24,68 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<UserRole | null>(null);
 
-  const fetchUserRole = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .single();
+  const fetchUserRole = async (userId: string, currentUser?: User | null) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
 
-    if (!error && data) {
-      setRole(data.role as UserRole);
+      if (!error && data && data.length > 0) {
+        // If the user has 'admin' in any of their assigned roles, grant admin
+        const hasAdminRole = data.some((r) => r.role === 'admin');
+        const assignedRole: UserRole = hasAdminRole ? 'admin' : (data[0].role as UserRole);
+        setRole(assignedRole);
+        return assignedRole;
+      }
+
+      // Fallback check in user_metadata or app_metadata
+      const userObj = currentUser || user;
+      const metadataRole = userObj?.app_metadata?.role || userObj?.user_metadata?.role;
+      if (metadataRole === 'admin') {
+        setRole('admin');
+        return 'admin';
+      }
+
+      setRole('user');
+      return 'user';
+    } catch (err) {
+      console.error('Error fetching user role:', err);
+      setRole('user');
+      return 'user';
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+      async (_event, newSession) => {
+        setSession(newSession);
+        const currentUser = newSession?.user ?? null;
+        setUser(currentUser);
 
-        // Defer role fetch with setTimeout to avoid deadlock
-        if (session?.user) {
-          setTimeout(() => {
-            fetchUserRole(session.user.id);
-          }, 0);
+        if (currentUser) {
+          await fetchUserRole(currentUser.id, currentUser);
         } else {
           setRole(null);
+          setLoading(false);
         }
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+    supabase.auth.getSession().then(async ({ data: { session: existingSession } }) => {
+      setSession(existingSession);
+      const currentUser = existingSession?.user ?? null;
+      setUser(currentUser);
 
-      if (session?.user) {
-        fetchUserRole(session.user.id);
+      if (currentUser) {
+        await fetchUserRole(currentUser.id, currentUser);
+      } else {
+        setRole(null);
+        setLoading(false);
       }
     });
 
@@ -108,7 +131,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
     setRole(null);
+    setLoading(false);
   };
 
   return (
