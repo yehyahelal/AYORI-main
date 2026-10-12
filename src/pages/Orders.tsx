@@ -87,7 +87,7 @@ export default function Orders() {
       if (user) {
         navigate('/orders');
       } else {
-        navigate('/auth');
+        navigate('/auth', { state: { from: { pathname: '/admin/orders' } } });
       }
     }
   }, [user, isAdmin, loading, isAdminRoute, navigate]);

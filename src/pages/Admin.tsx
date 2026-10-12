@@ -44,7 +44,7 @@ export default function Admin() {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      navigate('/auth', { state: { from: { pathname: '/admin' } } });
     }
   }, [user, loading, navigate]);
 
