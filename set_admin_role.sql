@@ -1,5 +1,5 @@
 -- ==============================================================================
--- AYORI - Assign Admin Role to an Account
+-- Yadawi - Assign Admin Role to an Account
 -- ==============================================================================
 -- Run this in your Supabase SQL Editor if an account lost its admin privileges.
 -- Replace 'your_admin_email@example.com' with your actual admin account email.

@@ -46,7 +46,7 @@ export function AuthModal() {
                             <Heart className="h-8 w-8 text-white" />
                         </div>
                     </div>
-                    <DialogTitle className="font-display text-2xl text-primary text-center">Welcome to AYORI</DialogTitle>
+                    <DialogTitle className="font-display text-2xl text-primary text-center">Welcome to Yadawi</DialogTitle>
                     <DialogDescription className="text-center">
                         Please sign in to continue to the magical world of plush toys.
                     </DialogDescription>

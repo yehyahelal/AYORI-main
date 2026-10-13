@@ -20,7 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const getCachedRole = (): UserRole | null => {
   try {
-    return (sessionStorage.getItem('ayori_user_role') as UserRole) || null;
+    return (sessionStorage.getItem('yadawi_user_role') as UserRole) || null;
   } catch {
     return null;
   }
@@ -36,9 +36,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setRole(newRole);
     try {
       if (newRole) {
-        sessionStorage.setItem('ayori_user_role', newRole);
+        sessionStorage.setItem('yadawi_user_role', newRole);
       } else {
-        sessionStorage.removeItem('ayori_user_role');
+        sessionStorage.removeItem('yadawi_user_role');
       }
     } catch {
       // Ignore storage errors

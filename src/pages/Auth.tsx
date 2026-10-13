@@ -93,7 +93,7 @@ export default function Auth() {
       });
     } else {
       toast({
-        title: 'Welcome to AYORI!',
+        title: 'Welcome to Yadawi!',
         description: 'Your account has been created successfully.'
       });
       navigate(from, { replace: true });
@@ -109,7 +109,7 @@ export default function Auth() {
               <Heart className="h-8 w-8 text-white" />
             </div>
           </div>
-          <CardTitle className="font-display text-3xl text-primary">AYORI</CardTitle>
+          <CardTitle className="font-display text-3xl text-primary">Yadawi</CardTitle>
           <CardDescription className="text-muted-foreground">
             Sign in to access your cuddly collection
           </CardDescription>

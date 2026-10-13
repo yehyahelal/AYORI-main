@@ -199,7 +199,7 @@ export async function sendOrderNotificationEmail({
       timeStyle: 'short'
     });
 
-    const storeOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://ayori.store';
+    const storeOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://yadawi.store';
     const orderLink = `${storeOrigin}/orders`;
     const adminOrdersLink = `${storeOrigin}/admin/orders`;
 
@@ -270,7 +270,7 @@ export async function sendTestNotificationEmail(
   }
 
   try {
-    const storeOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://ayori.store';
+    const storeOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://yadawi.store';
     const testParams: Record<string, any> = {
       to_email: settings.adminEmail.trim(),
       admin_email: settings.adminEmail.trim(),
@@ -281,14 +281,14 @@ export async function sendTestNotificationEmail(
       order_date: new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' }),
       status: 'Test Notification',
 
-      customer_name: 'AYORI Notification Test',
-      customer_email: 'test@ayori.store',
+      customer_name: 'Yadawi Notification Test',
+      customer_email: 'test@yadawi.store',
       customer_phone: '+20 100 000 0000',
       shipping_address: '123 Fluffy Boulevard, Cairo, Egypt',
 
-      items_summary: '1. AYORI Giant Fluffy Bunny Plush x1 — 350.00 EGP\n2. Mini Chubby Panda Keyring x2 — 180.00 EGP',
-      order_items: '1. AYORI Giant Fluffy Bunny Plush x1 — 350.00 EGP\n2. Mini Chubby Panda Keyring x2 — 180.00 EGP',
-      order_items_html: '<ul><li>AYORI Giant Fluffy Bunny Plush &times; 1 (350.00 EGP)</li><li>Mini Chubby Panda Keyring &times; 2 (180.00 EGP)</li></ul>',
+      items_summary: '1. Yadawi Giant Fluffy Bunny Plush x1 — 350.00 EGP\n2. Mini Chubby Panda Keyring x2 — 180.00 EGP',
+      order_items: '1. Yadawi Giant Fluffy Bunny Plush x1 — 350.00 EGP\n2. Mini Chubby Panda Keyring x2 — 180.00 EGP',
+      order_items_html: '<ul><li>Yadawi Giant Fluffy Bunny Plush &times; 1 (350.00 EGP)</li><li>Mini Chubby Panda Keyring &times; 2 (180.00 EGP)</li></ul>',
 
       subtotal: '530.00 EGP',
       delivery_fee: '50.00 EGP',

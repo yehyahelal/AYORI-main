@@ -51,10 +51,10 @@ export const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <div className="w-12 h-12 flex items-center justify-center group-hover:animate-wiggle">
-              <img src="/bear-icon.png" alt="AYORI Logo" className="w-full h-full object-contain" />
+              <img src="/bear-icon.png" alt="Yadawi Logo" className="w-full h-full object-contain" />
             </div>
             <span className="font-display text-xl md:text-2xl font-bold text-foreground">
-              AYORI
+              Yadawi
             </span>
           </Link>
 
@@ -153,9 +153,9 @@ export const Navbar = () => {
                 <SheetHeader className="text-left mb-6">
                   <div className="flex items-center gap-2">
                     <div className="w-10 h-10 flex items-center justify-center">
-                      <img src="/bear-icon.png" alt="AYORI" className="w-full h-full object-contain" />
+                      <img src="/bear-icon.png" alt="Yadawi" className="w-full h-full object-contain" />
                     </div>
-                    <SheetTitle className="font-display text-2xl font-bold">AYORI</SheetTitle>
+                    <SheetTitle className="font-display text-2xl font-bold">Yadawi</SheetTitle>
                   </div>
                   <SheetDescription>
                     Explore our magical world of handmade plush toys.

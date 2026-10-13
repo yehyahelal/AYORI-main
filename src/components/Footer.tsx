@@ -12,10 +12,10 @@ export const Footer = () => {
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-12 h-12 flex items-center justify-center">
-                <img src="/bear-icon.png" alt="AYORI Logo" className="w-full h-full object-contain" />
+                <img src="/bear-icon.png" alt="Yadawi Logo" className="w-full h-full object-contain" />
               </div>
               <span className="font-display text-xl font-bold">
-                AYORI
+                Yadawi
               </span>
             </Link>
             <p className="text-background/70 text-sm mb-4">
@@ -97,7 +97,7 @@ export const Footer = () => {
 
         <div className="border-t border-background/10 mt-12 pt-8 text-center">
           <p className="text-background/50 text-sm">
-            © {new Date().getFullYear()} AYORI. Made with ❤️ for little dreamers everywhere.
+            © {new Date().getFullYear()} Yadawi. Made with ❤️ for little dreamers everywhere.
           </p>
         </div>
       </div>

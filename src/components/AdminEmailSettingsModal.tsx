@@ -42,9 +42,9 @@ interface AdminEmailSettingsModalProps {
 
 const SAMPLE_TEMPLATE = `Subject: New Order {{order_id}} from {{customer_name}}!
 
-Hello AYORI Admin!
+Hello Yadawi Admin!
 
-You have received a new order on AYORI Plushies Store:
+You have received a new order on Yadawi Plushies Store:
 
 Order Details:
 ------------------------------------------
@@ -257,7 +257,7 @@ export function AdminEmailSettingsModal({
                 <Input
                   id="adminEmail"
                   type="email"
-                  placeholder="admin@ayori.store or your-personal@gmail.com"
+                  placeholder="admin@yadawi.store or your-personal@gmail.com"
                   value={adminEmail}
                   onChange={(e) => setAdminEmail(e.target.value)}
                   className="rounded-xl h-10 text-sm bg-background border-border"

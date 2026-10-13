@@ -87,7 +87,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
             });
         } else {
             toast({
-                title: 'Welcome to AYORI!',
+                title: 'Welcome to Yadawi!',
                 description: 'Your account has been created successfully.'
             });
             if (onSuccess) onSuccess();

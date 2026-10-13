@@ -1,5 +1,5 @@
 -- ==============================================================================
--- AYORI - Admin Order Email Notifications Setup
+-- Yadawi - Admin Order Email Notifications Setup
 -- ==============================================================================
 -- This script ensures store_settings table supports email notification configurations.
 -- The store admin can also configure all keys directly from the Admin Dashboard UI!
@@ -57,4 +57,4 @@ BEGIN
   END IF;
 END $$;
 
-COMMENT ON TABLE public.store_settings IS 'Stores AYORI configuration parameters, including delivery fees and EmailJS notification credentials.';
+COMMENT ON TABLE public.store_settings IS 'Stores Yadawi configuration parameters, including delivery fees and EmailJS notification credentials.';
