@@ -12,14 +12,16 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Trash2, Loader2, Package, Shield, Pencil, X, Mail, Search } from 'lucide-react';
+import { Plus, Trash2, Loader2, Package, Shield, Pencil, X, Mail, Search, Users, KeyRound, ShieldAlert } from 'lucide-react';
 import { fetchProducts, type Product } from '@/lib/products';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { AdminEmailSettingsModal } from '@/components/AdminEmailSettingsModal';
+import { AdminManagementModal } from '@/components/AdminManagementModal';
+import { AdminChangePasswordModal } from '@/components/AdminChangePasswordModal';
 
 export default function Admin() {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin, isSuperAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -27,6 +29,8 @@ export default function Admin() {
   const [deliveryFee, setDeliveryFee] = useState('50');
   const [isSavingFee, setIsSavingFee] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [isAdminManagementOpen, setIsAdminManagementOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   // Search & Filter state
   const [productSearch, setProductSearch] = useState('');
@@ -290,8 +294,15 @@ export default function Admin() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-primary">Admin Dashboard</h1>
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs font-semibold">
-                Admin
+              <Badge
+                variant="outline"
+                className={
+                  isSuperAdmin
+                    ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30 text-xs font-bold"
+                    : "bg-primary/10 text-primary border-primary/20 text-xs font-semibold"
+                }
+              >
+                {isSuperAdmin ? 'SuperAdmin' : 'Admin'}
               </Badge>
             </div>
             <p className="text-muted-foreground text-xs sm:text-sm mt-1">
@@ -320,8 +331,19 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* Actions: Email Alerts, View Orders, Add Product */}
+            {/* Actions: Manage Admins (Superadmin), Email Alerts, Orders, Password, Add Product */}
             <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+              {isSuperAdmin && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsAdminManagementOpen(true)}
+                  className="gap-2 border-amber-500/30 hover:border-amber-500/60 hover:bg-amber-500/10 text-foreground h-9 sm:h-10 text-xs sm:text-sm font-semibold rounded-xl"
+                  title="Manage team admin accounts"
+                >
+                  <Users className="h-4 w-4 text-amber-600 shrink-0" />
+                  <span className="truncate">Manage Admins</span>
+                </Button>
+              )}
               <Button 
                 variant="outline" 
                 onClick={() => setIsEmailModalOpen(true)}
@@ -337,6 +359,15 @@ export default function Admin() {
               >
                 <Package className="h-4 w-4 text-primary shrink-0" />
                 <span className="truncate">Orders</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsChangePasswordOpen(true)}
+                className="gap-1.5 h-9 sm:h-10 text-xs sm:text-sm font-medium rounded-xl"
+                title="Change your account password"
+              >
+                <KeyRound className="h-4 w-4 text-primary shrink-0" />
+                <span className="truncate">Password</span>
               </Button>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
@@ -800,6 +831,20 @@ export default function Admin() {
       <AdminEmailSettingsModal
         open={isEmailModalOpen}
         onOpenChange={setIsEmailModalOpen}
+      />
+
+      {/* SuperAdmin Management Modal */}
+      {isSuperAdmin && (
+        <AdminManagementModal
+          open={isAdminManagementOpen}
+          onOpenChange={setIsAdminManagementOpen}
+        />
+      )}
+
+      {/* Admin Change Password Modal */}
+      <AdminChangePasswordModal
+        open={isChangePasswordOpen}
+        onOpenChange={setIsChangePasswordOpen}
       />
     </div>
   );

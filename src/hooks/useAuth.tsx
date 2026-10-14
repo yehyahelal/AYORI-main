@@ -1,8 +1,8 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User, Session, createClient } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-type UserRole = 'admin' | 'user';
+type UserRole = 'superadmin' | 'admin' | 'user';
 
 interface AuthContextType {
   user: User | null;
@@ -10,11 +10,21 @@ interface AuthContextType {
   loading: boolean;
   role: UserRole | null;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   customerSignIn: (email: string, displayName?: string) => Promise<{ error: Error | null; isNew?: boolean }>;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithOAuth: (provider: 'google' | 'facebook') => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  createAdminAccount: (
+    email: string,
+    password: string,
+    displayName?: string,
+    roleToAssign?: 'admin' | 'superadmin'
+  ) => Promise<{ error: Error | null; user?: any }>;
+  revokeAdminAccount: (targetUserId: string) => Promise<{ error: Error | null }>;
+  resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,12 +74,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
 
       if (!error && data && data.length > 0) {
+        const hasSuperAdmin = data.some((r) => r.role === 'superadmin');
         const hasAdminRole = data.some((r) => r.role === 'admin');
-        const assignedRole: UserRole = hasAdminRole ? 'admin' : (data[0].role as UserRole);
+        const assignedRole: UserRole = hasSuperAdmin ? 'superadmin' : hasAdminRole ? 'admin' : (data[0].role as UserRole);
         updateUserRole(assignedRole);
         return assignedRole;
       }
 
+      if (metadataRole === 'superadmin') {
+        updateUserRole('superadmin');
+        return 'superadmin';
+      }
       if (metadataRole === 'admin') {
         updateUserRole('admin');
         return 'admin';
@@ -85,6 +100,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return 'user';
     } catch (err) {
       console.error('Error fetching user role:', err);
+      if (metadataRole === 'superadmin') {
+        updateUserRole('superadmin');
+        return 'superadmin';
+      }
       if (metadataRole === 'admin') {
         updateUserRole('admin');
         return 'admin';
@@ -286,6 +305,127 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error as Error | null };
   };
 
+  const createAdminAccount = async (
+    email: string,
+    password: string,
+    displayName?: string,
+    roleToAssign: 'admin' | 'superadmin' = 'admin'
+  ): Promise<{ error: Error | null; user?: any }> => {
+    if (role !== 'superadmin') {
+      return { error: new Error('Only a SuperAdmin can create admin accounts.') };
+    }
+
+    try {
+      // Use an isolated temporary client so current superadmin session is not replaced
+      const tempClient = createClient(
+        import.meta.env.VITE_SUPABASE_URL,
+        import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+          },
+        }
+      );
+
+      const cleanEmail = email.trim().toLowerCase();
+      const name = displayName?.trim() || cleanEmail.split('@')[0];
+
+      const { data: signUpData, error: signUpError } = await tempClient.auth.signUp({
+        email: cleanEmail,
+        password: password,
+        options: {
+          data: {
+            display_name: name,
+            role: roleToAssign,
+          },
+        },
+      });
+
+      if (signUpError) {
+        return { error: signUpError as Error };
+      }
+
+      const newUserId = signUpData.user?.id;
+      if (!newUserId) {
+        return { error: new Error('User was not created by Supabase Auth.') };
+      }
+
+      // Assign the role in public.user_roles using current superadmin permissions
+      const { error: roleError } = await supabase.from('user_roles').upsert({
+        user_id: newUserId,
+        role: roleToAssign,
+      });
+
+      if (roleError) {
+        console.warn('Direct user_roles upsert notice:', roleError.message);
+        try {
+          await (supabase as any).rpc('assign_user_role', {
+            _target_user_id: newUserId,
+            _role: roleToAssign,
+          });
+        } catch (rpcErr) {
+          console.warn('RPC assign_user_role notice:', rpcErr);
+        }
+      }
+
+      // Also ensure profile exists
+      try {
+        await supabase.from('profiles').upsert({
+          user_id: newUserId,
+          display_name: name,
+        });
+      } catch {
+        // Non-blocking
+      }
+
+      return { error: null, user: signUpData.user };
+    } catch (err: any) {
+      return { error: err };
+    }
+  };
+
+  const revokeAdminAccount = async (targetUserId: string): Promise<{ error: Error | null }> => {
+    if (role !== 'superadmin') {
+      return { error: new Error('Only a SuperAdmin can revoke admin roles.') };
+    }
+
+    try {
+      const { error: rpcError } = await (supabase as any).rpc('revoke_admin_role', {
+        _target_user_id: targetUserId,
+      });
+
+      if (rpcError) {
+        const { error: delError } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', targetUserId)
+          .eq('role', 'admin');
+
+        if (delError) return { error: delError as Error };
+      }
+
+      return { error: null };
+    } catch (err: any) {
+      return { error: err };
+    }
+  };
+
+  const resetPasswordForEmail = async (email: string): Promise<{ error: Error | null }> => {
+    const redirectUrl = `${window.location.origin}/auth?reset=true`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+      redirectTo: redirectUrl,
+    });
+    return { error: error as Error | null };
+  };
+
+  const updatePassword = async (newPassword: string): Promise<{ error: Error | null }> => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    return { error: error as Error | null };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -300,12 +440,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       loading,
       role,
-      isAdmin: role === 'admin',
+      isAdmin: role === 'admin' || role === 'superadmin',
+      isSuperAdmin: role === 'superadmin',
       customerSignIn,
       signUp,
       signIn,
       signInWithOAuth,
-      signOut
+      signOut,
+      createAdminAccount,
+      revokeAdminAccount,
+      resetPasswordForEmail,
+      updatePassword
     }}>
       {children}
     </AuthContext.Provider>
