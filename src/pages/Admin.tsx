@@ -12,13 +12,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Trash2, Loader2, Package, Shield, Pencil, X, Mail, Search, Users, KeyRound, ShieldAlert } from 'lucide-react';
+import { Plus, Trash2, Loader2, Package, Shield, Pencil, X, Mail, Search, Users, ShieldAlert } from 'lucide-react';
 import { fetchProducts, type Product } from '@/lib/products';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { AdminEmailSettingsModal } from '@/components/AdminEmailSettingsModal';
 import { AdminManagementModal } from '@/components/AdminManagementModal';
-import { AdminChangePasswordModal } from '@/components/AdminChangePasswordModal';
 import { confirmDeleteProductAlert } from '@/lib/sweetAlert';
 
 export default function Admin() {
@@ -31,7 +30,6 @@ export default function Admin() {
   const [isSavingFee, setIsSavingFee] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isAdminManagementOpen, setIsAdminManagementOpen] = useState(false);
-  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   // Search & Filter state
   const [productSearch, setProductSearch] = useState('');
@@ -333,7 +331,7 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* Actions: Manage Admins (Superadmin), Email Alerts, Orders, Password, Add Product */}
+            {/* Actions: Manage Admins (Superadmin), Email Alerts, Orders, Add Product */}
             <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
               {isSuperAdmin && (
                 <Button 
@@ -361,15 +359,6 @@ export default function Admin() {
               >
                 <Package className="h-4 w-4 text-primary shrink-0" />
                 <span className="truncate">Orders</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setIsChangePasswordOpen(true)}
-                className="gap-1.5 h-9 sm:h-10 text-xs sm:text-sm font-medium rounded-xl"
-                title="Change your account password"
-              >
-                <KeyRound className="h-4 w-4 text-primary shrink-0" />
-                <span className="truncate">Password</span>
               </Button>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
@@ -843,11 +832,6 @@ export default function Admin() {
         />
       )}
 
-      {/* Admin Change Password Modal */}
-      <AdminChangePasswordModal
-        open={isChangePasswordOpen}
-        onOpenChange={setIsChangePasswordOpen}
-      />
     </div>
   );
 }

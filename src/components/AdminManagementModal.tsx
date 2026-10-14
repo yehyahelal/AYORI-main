@@ -422,14 +422,11 @@ export function AdminManagementModal({
 
           {activeTab === 'create' && (
             <form onSubmit={handleCreateAdmin} className="space-y-4">
-              <div className="p-3.5 rounded-2xl bg-primary/5 border border-primary/20 text-xs text-foreground space-y-1">
+              <div className="p-3.5 rounded-2xl bg-primary/5 border border-primary/20 text-xs text-foreground">
                 <div className="font-bold flex items-center gap-1.5 text-primary">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Create Admin Credentials</span>
                 </div>
-                <p className="text-muted-foreground text-[11px]">
-                  New administrators can immediately sign into the admin portal with the email and password you set here. They can change their password at any time.
-                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
