@@ -14,7 +14,7 @@ import { generateOrderNumber, formatOrderNumber } from "@/lib/orderUtils";
 import { sendOrderNotificationEmail } from "@/lib/emailService";
 
 const Checkout = () => {
-  const { user } = useAuth();
+  const { user, customerSignIn } = useAuth();
   const navigate = useNavigate();
   const { items, clearCart } = useCartStore();
   
@@ -27,6 +27,16 @@ const Checkout = () => {
     address: "",
     city: ""
   });
+
+  useEffect(() => {
+    if (user?.email && !formData.email) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email || "",
+        name: prev.name || user.user_metadata?.display_name || ""
+      }));
+    }
+  }, [user]);
 
   useEffect(() => {
     // Fetch delivery fee
@@ -61,14 +71,30 @@ const Checkout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast.error("Please log in to checkout");
-      navigate('/auth');
+    const cleanEmail = formData.email.trim().toLowerCase();
+    if (!cleanEmail) {
+      toast.error("Please enter your email to save your order and purchase history");
       return;
     }
 
     setIsSubmitting(true);
     try {
+      let activeUser = user;
+
+      // If customer is not logged in, auto sign in / register seamlessly in the background
+      if (!activeUser) {
+        try {
+          const { error: authError } = await customerSignIn(cleanEmail, formData.name);
+          if (authError) {
+            console.warn("Notice during background customer login:", authError.message);
+          }
+          const { data: sessionData } = await supabase.auth.getSession();
+          activeUser = sessionData?.session?.user || null;
+        } catch (authErr) {
+          console.warn("Silent auth error on checkout:", authErr);
+        }
+      }
+
       const fullAddress = formData.city ? `${formData.address}, ${formData.city}` : formData.address;
       const uniqueOrderNumber = generateOrderNumber();
 
@@ -78,10 +104,10 @@ const Checkout = () => {
       const primaryAttempt = await supabase
         .from('orders')
         .insert({
-          user_id: user.id,
+          user_id: activeUser?.id || null,
           order_number: uniqueOrderNumber,
           customer_name: formData.name,
-          customer_email: formData.email,
+          customer_email: cleanEmail,
           shipping_address: fullAddress,
           phone_number: formData.phone,
           total_amount: totalPrice,
@@ -101,9 +127,9 @@ const Checkout = () => {
           const fallbackAttempt = await supabase
             .from('orders')
             .insert({
-              user_id: user.id,
+              user_id: activeUser?.id || null,
               customer_name: formData.name,
-              customer_email: formData.email,
+              customer_email: cleanEmail,
               shipping_address: fullAddress,
               phone_number: formData.phone,
               total_amount: totalPrice,

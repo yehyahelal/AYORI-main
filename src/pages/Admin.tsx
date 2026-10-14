@@ -345,143 +345,163 @@ export default function Admin() {
                     <span>Add Product</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 rounded-2xl sm:rounded-3xl">
-                  <DialogHeader className="space-y-1">
+                <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] flex flex-col p-0 overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 shadow-2xl">
+                  {/* Sticky Header */}
+                  <DialogHeader className="px-5 py-4 sm:px-6 sm:py-5 border-b border-border/60 shrink-0 pr-12 text-left">
                     <DialogTitle className="font-display text-xl sm:text-2xl text-foreground">
                       {editingId ? 'Edit Product' : 'Add New Product'}
                     </DialogTitle>
-                    <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+                    <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                       {editingId ? 'Update details for this plushie friend' : 'Add a brand new plushie to your online store'}
                     </DialogDescription>
                   </DialogHeader>
                   
-                  <form onSubmit={handleSaveProduct} className="space-y-5 mt-3">
-                    <div className="space-y-4">
-                      <div className="space-y-1.5">
-                        <Label htmlFor="title" className="text-xs sm:text-sm font-semibold">Product Name *</Label>
-                        <Input
-                          id="title"
-                          placeholder="e.g. Fluffy Bear"
-                          value={title}
-                          onChange={(e) => setTitle(e.target.value)}
-                          className="rounded-xl h-10 text-sm"
-                          required
-                        />
-                      </div>
-                      
-                      <div className="space-y-1.5">
-                        <Label htmlFor="description" className="text-xs sm:text-sm font-semibold">Description</Label>
-                        <Textarea
-                          id="description"
-                          placeholder="Soft, cuddly, handcrafted with premium cotton..."
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          rows={3}
-                          className="rounded-xl text-sm"
-                        />
-                      </div>
-                      
-                      {/* Responsive Grid: 1 col on mobile, 3 cols on tablet/desktop */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                  {/* Form with Scrollable Body and Pinned Footer */}
+                  <form onSubmit={handleSaveProduct} className="flex flex-col flex-1 overflow-hidden min-h-0">
+                    <div className="overflow-y-auto flex-1 px-5 py-4 sm:px-6 sm:py-5 space-y-5 custom-scrollbar">
+                      <div className="space-y-4">
                         <div className="space-y-1.5">
-                          <Label htmlFor="price" className="text-xs sm:text-sm font-semibold">Price (EGP) *</Label>
+                          <Label htmlFor="title" className="text-xs sm:text-sm font-semibold">Product Name *</Label>
                           <Input
-                            id="price"
-                            type="number"
-                            step="0.01"
-                            placeholder="299.00"
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
+                            id="title"
+                            placeholder="e.g. Fluffy Bear"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
                             className="rounded-xl h-10 text-sm"
                             required
                           />
                         </div>
                         
                         <div className="space-y-1.5">
-                          <Label htmlFor="type" className="text-xs sm:text-sm font-semibold">Category</Label>
-                          <Input
-                            id="type"
-                            placeholder="e.g. Bears, Bunnies"
-                            value={productType}
-                            onChange={(e) => setProductType(e.target.value)}
-                            className="rounded-xl h-10 text-sm"
+                          <Label htmlFor="description" className="text-xs sm:text-sm font-semibold">Description</Label>
+                          <Textarea
+                            id="description"
+                            placeholder="Soft, cuddly, handcrafted with premium cotton..."
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            rows={3}
+                            className="rounded-xl text-sm"
                           />
                         </div>
                         
-                        <div className="space-y-1.5">
-                          <Label htmlFor="inventory" className="text-xs sm:text-sm font-semibold">Stock Quantity *</Label>
-                          <Input
-                            id="inventory"
-                            type="number"
-                            min="0"
-                            value={inventoryCount}
-                            onChange={(e) => setInventoryCount(e.target.value)}
-                            className="rounded-xl h-10 text-sm"
-                            required
-                          />
+                        {/* Responsive Grid: 1 col on mobile, 3 cols on tablet/desktop */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="price" className="text-xs sm:text-sm font-semibold">Price (EGP) *</Label>
+                            <Input
+                              id="price"
+                              type="number"
+                              step="0.01"
+                              placeholder="299.00"
+                              value={price}
+                              onChange={(e) => setPrice(e.target.value)}
+                              className="rounded-xl h-10 text-sm"
+                              required
+                            />
+                          </div>
+                          
+                          <div className="space-y-1.5">
+                            <Label htmlFor="type" className="text-xs sm:text-sm font-semibold">Category</Label>
+                            <Input
+                              id="type"
+                              placeholder="e.g. Bears, Bunnies"
+                              value={productType}
+                              onChange={(e) => setProductType(e.target.value)}
+                              className="rounded-xl h-10 text-sm"
+                            />
+                          </div>
+                          
+                          <div className="space-y-1.5">
+                            <Label htmlFor="inventory" className="text-xs sm:text-sm font-semibold">Stock Quantity *</Label>
+                            <Input
+                              id="inventory"
+                              type="number"
+                              min="0"
+                              value={inventoryCount}
+                              onChange={(e) => setInventoryCount(e.target.value)}
+                              className="rounded-xl h-10 text-sm"
+                              required
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-3 border-t border-border/60 pt-4">
-                      <Label className="text-xs sm:text-sm font-semibold">Product Images</Label>
                       
-                      {/* Images Gallery */}
-                      {(existingImages.length > 0 || imageFiles.length > 0) && (
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mb-3">
-                          {existingImages.map((url, idx) => (
-                            <div key={`existing-${idx}`} className="relative group rounded-xl overflow-hidden border border-border/80 bg-muted/40 aspect-square">
-                              <img src={url} alt={`Product ${idx}`} className="w-full h-full object-cover" />
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveExistingImage(idx)}
-                                className="absolute top-1.5 right-1.5 bg-destructive text-destructive-foreground p-1 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shadow-sm"
-                                title="Remove Image"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          ))}
-                          {imageFiles.map((file, idx) => (
-                            <div key={`new-${idx}`} className="relative group rounded-xl overflow-hidden border border-primary/40 bg-muted/40 aspect-square">
-                              <img src={URL.createObjectURL(file)} alt={`New ${idx}`} className="w-full h-full object-cover opacity-80" />
-                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <span className="bg-primary/90 text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                                  New
-                                </span>
+                      <div className="space-y-3 border-t border-border/60 pt-4">
+                        <Label className="text-xs sm:text-sm font-semibold">Product Images</Label>
+                        
+                        {/* Images Gallery */}
+                        {(existingImages.length > 0 || imageFiles.length > 0) && (
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mb-3">
+                            {existingImages.map((url, idx) => (
+                              <div key={`existing-${idx}`} className="relative group rounded-xl overflow-hidden border border-border/80 bg-muted/40 aspect-square">
+                                <img src={url} alt={`Product ${idx}`} className="w-full h-full object-cover" />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveExistingImage(idx)}
+                                  className="absolute top-1.5 right-1.5 bg-destructive text-destructive-foreground p-1 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shadow-sm"
+                                  title="Remove Image"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
                               </div>
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveNewImage(idx)}
-                                className="absolute top-1.5 right-1.5 bg-destructive text-destructive-foreground p-1 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shadow-sm"
-                                title="Remove Image"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                            ))}
+                            {imageFiles.map((file, idx) => (
+                              <div key={`new-${idx}`} className="relative group rounded-xl overflow-hidden border border-primary/40 bg-muted/40 aspect-square">
+                                <img src={URL.createObjectURL(file)} alt={`New ${idx}`} className="w-full h-full object-cover opacity-80" />
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                  <span className="bg-primary/90 text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                                    New
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveNewImage(idx)}
+                                  className="absolute top-1.5 right-1.5 bg-destructive text-destructive-foreground p-1 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shadow-sm"
+                                  title="Remove Image"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
 
-                      <div className="flex items-center gap-4">
-                        <Input
-                          id="images"
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          className="cursor-pointer text-xs sm:text-sm rounded-xl file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                          onChange={handleFileChange}
-                        />
+                        <div className="flex items-center gap-4">
+                          <Input
+                            id="images"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="cursor-pointer text-xs sm:text-sm rounded-xl file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                            onChange={handleFileChange}
+                          />
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Select one or more photos. High quality square photos look best.
+                        </p>
                       </div>
-                      <p className="text-[11px] text-muted-foreground">
-                        Select one or more photos. High quality square photos look best.
-                      </p>
                     </div>
                     
-                    <Button type="submit" className="w-full h-11 text-sm font-bold rounded-xl shadow-sm" variant="hero" disabled={isSubmitting}>
-                      {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                      {editingId ? 'Save Changes' : 'Publish Product'}
-                    </Button>
+                    {/* Sticky Footer */}
+                    <div className="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-border/60 bg-muted/20 shrink-0 flex items-center justify-end gap-2.5">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => setIsDialogOpen(false)}
+                        className="h-10 text-xs sm:text-sm rounded-xl"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="h-10 px-6 text-xs sm:text-sm font-bold rounded-xl shadow-sm"
+                        variant="hero"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                        {editingId ? 'Save Changes' : 'Publish Product'}
+                      </Button>
+                    </div>
                   </form>
                 </DialogContent>
               </Dialog>

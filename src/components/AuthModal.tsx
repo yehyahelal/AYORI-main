@@ -39,7 +39,7 @@ export function AuthModal() {
 
     return (
         <Dialog open={isAuthModalOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="w-[95vw] sm:max-w-md p-6 rounded-3xl border border-border/80 shadow-2xl">
                 <DialogHeader className="text-center space-y-2">
                     <div className="flex justify-center mb-2">
                         <div className="bg-gradient-candy p-3 rounded-2xl">

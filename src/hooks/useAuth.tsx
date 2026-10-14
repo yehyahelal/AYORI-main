@@ -10,6 +10,7 @@ interface AuthContextType {
   loading: boolean;
   role: UserRole | null;
   isAdmin: boolean;
+  customerSignIn: (email: string, displayName?: string) => Promise<{ error: Error | null; isNew?: boolean }>;
   signUp: (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithOAuth: (provider: 'google' | 'facebook') => Promise<{ error: Error | null }>;
@@ -131,6 +132,123 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const getCustomerSecret = (email: string): string => {
+    const clean = email.trim().toLowerCase();
+    let hash = 0;
+    for (let i = 0; i < clean.length; i++) {
+      hash = (hash << 5) - hash + clean.charCodeAt(i);
+      hash |= 0;
+    }
+    return `Yadawi#Customer_${Math.abs(hash)}!2026`;
+  };
+
+  const customerSignIn = async (
+    email: string,
+    displayName?: string
+  ): Promise<{ error: Error | null; isNew?: boolean }> => {
+    const cleanEmail = email.trim().toLowerCase();
+    const customerPassword = getCustomerSecret(cleanEmail);
+
+    // 1. Try to sign in directly
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: cleanEmail,
+      password: customerPassword,
+    });
+
+    if (!signInError && signInData?.user) {
+      setUser(signInData.user);
+      setSession(signInData.session);
+      await fetchUserRole(signInData.user.id, signInData.user);
+
+      // Link any previously placed guest orders with this email to this user_id
+      try {
+        await supabase
+          .from('orders')
+          .update({ user_id: signInData.user.id })
+          .eq('customer_email', cleanEmail)
+          .is('user_id', null);
+      } catch {
+        // Non-blocking
+      }
+
+      return { error: null, isNew: false };
+    }
+
+    // 2. If user doesn't exist yet with this customer password, attempt auto signup
+    const redirectUrl = `${window.location.origin}/`;
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: cleanEmail,
+      password: customerPassword,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: {
+          display_name: displayName || cleanEmail.split('@')[0],
+          is_customer: true,
+        },
+      },
+    });
+
+    if (signUpError) {
+      // If error indicates already registered, this is an account with a custom password (e.g. Admin)
+      const msg = signUpError.message?.toLowerCase() || '';
+      if (msg.includes('already registered') || msg.includes('already been registered')) {
+        return {
+          error: new Error(
+            'This email is registered with a password (e.g. Admin account). Please sign in using the Admin Login.'
+          ),
+        };
+      }
+      return { error: signUpError as Error };
+    }
+
+    // Check if session was returned directly on signup
+    if (signUpData?.session && signUpData?.user) {
+      setUser(signUpData.user);
+      setSession(signUpData.session);
+      await fetchUserRole(signUpData.user.id, signUpData.user);
+
+      try {
+        await supabase
+          .from('orders')
+          .update({ user_id: signUpData.user.id })
+          .eq('customer_email', cleanEmail)
+          .is('user_id', null);
+      } catch {
+        // Non-blocking
+      }
+
+      return { error: null, isNew: true };
+    }
+
+    // 3. Retry signing in immediately
+    const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
+      email: cleanEmail,
+      password: customerPassword,
+    });
+
+    if (retryError) {
+      return { error: retryError as Error };
+    }
+
+    if (retryData?.user) {
+      setUser(retryData.user);
+      setSession(retryData.session);
+      await fetchUserRole(retryData.user.id, retryData.user);
+
+      try {
+        await supabase
+          .from('orders')
+          .update({ user_id: retryData.user.id })
+          .eq('customer_email', cleanEmail)
+          .is('user_id', null);
+      } catch {
+        // Non-blocking
+      }
+    }
+
+    return { error: null, isNew: true };
+  };
+
   const signUp = async (email: string, password: string, displayName?: string) => {
     const redirectUrl = `${window.location.origin}/`;
 
@@ -183,6 +301,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       role,
       isAdmin: role === 'admin',
+      customerSignIn,
       signUp,
       signIn,
       signInWithOAuth,

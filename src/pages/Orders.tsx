@@ -46,7 +46,7 @@ import {
 } from '@/lib/stockUtils';
 
 export default function Orders() {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin, loading, customerSignIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -60,6 +60,10 @@ export default function Orders() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+
+  // Email and ID lookup for guests
+  const [emailLookup, setEmailLookup] = useState('');
+  const [isEmailLookingUp, setIsEmailLookingUp] = useState(false);
 
   // Return & Cancel Stock Modal State
   const [returnModalOpen, setReturnModalOpen] = useState(false);
@@ -103,9 +107,13 @@ export default function Orders() {
     try {
       let query = supabase.from('orders').select('*').order('created_at', { ascending: false });
 
-      // If user is not admin, filter to only their orders
+      // If user is not admin, filter to only their orders (by user_id OR customer_email)
       if (!isAdmin && user) {
-        query = query.eq('user_id', user.id);
+        if (user.email) {
+          query = query.or(`user_id.eq.${user.id},customer_email.eq.${user.email.toLowerCase()}`);
+        } else {
+          query = query.eq('user_id', user.id);
+        }
       }
 
       const { data, error } = await query;
@@ -562,32 +570,79 @@ export default function Orders() {
 
         {/* Guest Order Lookup Helper (If user is not logged in) */}
         {isGuest && (
-          <Card className="rounded-2xl border-amber-200/80 bg-amber-50/50 dark:bg-amber-950/20 shadow-sm mb-6 p-6">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300 flex items-center justify-center flex-shrink-0">
-                  <HelpCircle className="w-5 h-5" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {/* 1. Retrieve all previous purchases by email */}
+            <Card className="rounded-2xl border-primary/20 bg-primary/5 shadow-sm p-5">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Mail className="w-5 h-5" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Have an Order ID (#123456)?</h3>
-                  <p className="text-xs text-muted-foreground">
-                    You can look up any order status directly by entering your unique order number below.
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-sm text-foreground">Find Your Previous Purchases</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5 mb-3">
+                    Enter the email you used at checkout to see all your past orders. No password needed!
                   </p>
+                  <form onSubmit={async (e) => {
+                    e.preventDefault();
+                    const clean = emailLookup.trim().toLowerCase();
+                    if (!clean) return;
+                    setIsEmailLookingUp(true);
+                    try {
+                      const { error } = await customerSignIn(clean);
+                      if (error) {
+                        toast.error(error.message || 'Could not load orders with this email');
+                      } else {
+                        toast.success(`Welcome! Loading all orders for ${clean}...`);
+                      }
+                    } catch (err: any) {
+                      toast.error(err.message || 'Lookup failed');
+                    } finally {
+                      setIsEmailLookingUp(false);
+                    }
+                  }} className="flex gap-2">
+                    <Input
+                      type="email"
+                      placeholder="your-email@example.com"
+                      value={emailLookup}
+                      onChange={(e) => setEmailLookup(e.target.value)}
+                      className="h-9 text-xs bg-background"
+                      required
+                    />
+                    <Button size="sm" type="submit" variant="hero" disabled={isEmailLookingUp} className="text-xs shrink-0">
+                      {isEmailLookingUp ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'View History'}
+                    </Button>
+                  </form>
                 </div>
               </div>
-              <form onSubmit={handleQuickLookup} className="flex gap-2 w-full md:w-auto">
-                <Input
-                  placeholder="e.g. #123456"
-                  value={lookupQuery}
-                  onChange={(e) => setLookupQuery(e.target.value)}
-                  className="font-mono h-9 w-36 bg-white dark:bg-card"
-                />
-                <Button size="sm" type="submit" variant="hero" disabled={isLookingUp}>
-                  {isLookingUp ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Track Order'}
-                </Button>
-              </form>
-            </div>
-          </Card>
+            </Card>
+
+            {/* 2. Track single order by Order ID */}
+            <Card className="rounded-2xl border-border/80 bg-card shadow-sm p-5">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-muted text-muted-foreground flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <HelpCircle className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-sm text-foreground">Track by Order ID</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5 mb-3">
+                    Have an Order Number (e.g. #123456)? Look it up directly.
+                  </p>
+                  <form onSubmit={handleQuickLookup} className="flex gap-2">
+                    <Input
+                      placeholder="#123456"
+                      value={lookupQuery}
+                      onChange={(e) => setLookupQuery(e.target.value)}
+                      className="font-mono h-9 text-xs bg-background"
+                      required
+                    />
+                    <Button size="sm" type="submit" variant="secondary" disabled={isLookingUp} className="text-xs shrink-0">
+                      {isLookingUp ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Track ID'}
+                    </Button>
+                  </form>
+                </div>
+              </div>
+            </Card>
+          </div>
         )}
 
         {/* Orders Table Card */}
@@ -864,8 +919,8 @@ export default function Orders() {
 
       {/* Order Details & Escalation Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl sm:rounded-3xl p-4 sm:p-6">
-          <DialogHeader className="pb-2 border-b">
+        <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] flex flex-col p-0 overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 shadow-2xl">
+          <DialogHeader className="px-5 py-4 sm:px-6 sm:py-5 border-b border-border/60 shrink-0 pr-12 text-left">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pr-6">
               <div>
                 <DialogTitle className="font-display text-2xl font-bold flex items-center gap-2">
@@ -907,7 +962,8 @@ export default function Orders() {
           </DialogHeader>
 
           {selectedOrder && (
-            <div className="space-y-6 mt-4">
+            <div className="flex flex-col flex-1 overflow-hidden min-h-0">
+              <div className="overflow-y-auto flex-1 px-5 py-4 sm:px-6 sm:py-5 space-y-6 custom-scrollbar">
               {/* Escalation Reference Box */}
               <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
@@ -1028,8 +1084,10 @@ export default function Orders() {
                 </div>
               </div>
 
-              {/* Modal footer links */}
-              <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-end">
+              </div>
+
+              {/* Sticky Footer */}
+              <div className="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-border/60 bg-muted/20 shrink-0 flex flex-col sm:flex-row gap-2 justify-end">
                 {isAdmin && !selectedOrder.is_closed && (
                   <Button
                     variant="outline"

@@ -193,8 +193,9 @@ export function AdminEmailSettingsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl sm:rounded-3xl p-4 sm:p-8">
-        <DialogHeader className="space-y-2">
+      <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] flex flex-col p-0 overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 shadow-2xl">
+        {/* Sticky Header */}
+        <DialogHeader className="px-5 py-4 sm:px-6 sm:py-5 border-b border-border/60 shrink-0 pr-12 text-left">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-sm shrink-0">
@@ -204,7 +205,7 @@ export function AdminEmailSettingsModal({
                 <DialogTitle className="font-display text-xl sm:text-2xl text-foreground">
                   Admin Email Notifications
                 </DialogTitle>
-                <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
+                <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                   Receive instant email alerts whenever a customer submits a new order
                 </DialogDescription>
               </div>
@@ -223,15 +224,17 @@ export function AdminEmailSettingsModal({
           </div>
         </DialogHeader>
 
-        {isLoading ? (
-          <div className="py-12 flex flex-col items-center justify-center gap-2">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-xs text-muted-foreground">Loading email settings...</p>
-          </div>
-        ) : (
-          <div className="space-y-6 mt-2">
-            {/* Enable/Disable Toggle */}
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/40 border border-border/60">
+        {/* Scrollable Body */}
+        <div className="overflow-y-auto flex-1 px-5 py-4 sm:px-6 sm:py-5 space-y-6 custom-scrollbar">
+          {isLoading ? (
+            <div className="py-12 flex flex-col items-center justify-center gap-2">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="text-xs text-muted-foreground">Loading email settings...</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Enable/Disable Toggle */}
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/40 border border-border/60">
               <div className="space-y-0.5">
                 <div className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <span>Enable Order Notifications</span>
@@ -406,7 +409,7 @@ export function AdminEmailSettingsModal({
                         )}
                       </Button>
                     </div>
-                    <pre className="p-3 rounded-xl bg-background border text-[11px] font-mono whitespace-pre-wrap max-h-40 overflow-y-auto text-foreground/80">
+                    <pre className="p-3 rounded-xl bg-background border text-[11px] font-mono whitespace-pre-wrap max-h-40 overflow-y-auto text-foreground/80 custom-scrollbar">
                       {SAMPLE_TEMPLATE}
                     </pre>
                   </div>
@@ -415,45 +418,47 @@ export function AdminEmailSettingsModal({
             </div>
           </div>
         )}
+      </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2.5 pt-4 border-t border-border/60">
+      {/* Sticky Footer */}
+      <DialogFooter className="px-5 py-3.5 sm:px-6 sm:py-4 border-t border-border/60 bg-muted/20 shrink-0 flex-col sm:flex-row gap-2.5 justify-between items-stretch sm:items-center">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleSendTest}
+          disabled={isTesting || isLoading || !adminEmail}
+          className="rounded-xl h-10 gap-2 border-border text-xs sm:text-sm font-semibold order-2 sm:order-1"
+        >
+          {isTesting ? (
+            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+          ) : (
+            <Send className="w-4 h-4 text-primary" />
+          )}
+          Send Test Email
+        </Button>
+
+        <div className="flex items-center gap-2 justify-end order-1 sm:order-2">
           <Button
             type="button"
-            variant="outline"
-            onClick={handleSendTest}
-            disabled={isTesting || isLoading || !adminEmail}
-            className="rounded-xl h-10 gap-2 border-border text-xs sm:text-sm font-semibold"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+            className="rounded-xl h-10 text-xs sm:text-sm"
           >
-            {isTesting ? (
-              <Loader2 className="w-4 h-4 animate-spin text-primary" />
-            ) : (
-              <Send className="w-4 h-4 text-primary" />
-            )}
-            Send Test Email
+            Cancel
           </Button>
-
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-              className="rounded-xl h-10 text-xs sm:text-sm"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="hero"
-              onClick={handleSave}
-              disabled={isSaving || isLoading}
-              className="rounded-xl h-10 px-6 text-xs sm:text-sm font-bold shadow-sm"
-            >
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Save Settings
-            </Button>
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <Button
+            type="button"
+            variant="hero"
+            onClick={handleSave}
+            disabled={isSaving || isLoading}
+            className="rounded-xl h-10 px-6 text-xs sm:text-sm font-bold shadow-sm"
+          >
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+            Save Settings
+          </Button>
+        </div>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
   );
 }
