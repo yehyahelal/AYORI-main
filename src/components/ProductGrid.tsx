@@ -51,37 +51,37 @@ export const ProductGrid = () => {
   }
 
   return (
-    <section className="py-16 md:py-24">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-center justify-between mb-12">
+    <section className="py-8 sm:py-14 md:py-20">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="flex items-center justify-between mb-6 sm:mb-10">
           <div>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
+            <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-1">
               Our Cuddly Collection
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-xs sm:text-sm md:text-base">
               Handpicked plush friends waiting for a new home
             </p>
           </div>
-          <Link to="/products" className="mt-4 md:mt-0">
-            <Button variant="outline" className="group">
-              View All
-              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+          <Link to="/products" className="shrink-0 ml-2">
+            <Button variant="outline" size="sm" className="group h-8 sm:h-9 px-3 text-xs sm:text-sm">
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
         </div>
 
         {products.length === 0 ? (
-          <div className="text-center py-20 bg-muted/30 rounded-3xl">
-            <div className="text-6xl mb-4">🧸</div>
-            <h3 className="font-display text-2xl font-semibold text-foreground mb-2">
+          <div className="text-center py-12 sm:py-20 bg-muted/30 rounded-2xl sm:rounded-3xl p-4">
+            <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">🧸</div>
+            <h3 className="font-display text-lg sm:text-2xl font-semibold text-foreground mb-1 sm:mb-2">
               No products found
             </h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
+            <p className="text-muted-foreground text-xs sm:text-sm max-w-md mx-auto">
               We're adding new cuddly friends soon! Tell us what toys you'd like to see.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

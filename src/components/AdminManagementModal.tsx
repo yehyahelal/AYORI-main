@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { confirmResetPasswordAlert, confirmRevokeAdminAlert } from '@/lib/sweetAlert';
 
 interface AdminUser {
   user_id: string;
@@ -47,7 +48,7 @@ export function AdminManagementModal({
   open,
   onOpenChange
 }: AdminManagementModalProps) {
-  const { user, isSuperAdmin, createAdminAccount, revokeAdminAccount, resetPasswordForEmail } = useAuth();
+  const { user, isSuperAdmin, createAdminAccount, revokeAdminAccount, resetAdminPasswordDefault } = useAuth();
 
   const [activeTab, setActiveTab] = useState<'list' | 'create'>('list');
   const [admins, setAdmins] = useState<AdminUser[]>([]);
@@ -56,7 +57,7 @@ export function AdminManagementModal({
   // Form state for creating an admin
   const [newEmail, setNewEmail] = useState('');
   const [newName, setNewName] = useState('');
-  const [newPassword, setNewPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('Yadawi@123');
   const [assignedRole, setAssignedRole] = useState<'admin' | 'superadmin'>('admin');
   const [showPassword, setShowPassword] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -168,37 +169,33 @@ export function AdminManagementModal({
       });
       setNewEmail('');
       setNewName('');
-      setNewPassword('');
+      setNewPassword('Yadawi@123');
       setActiveTab('list');
       fetchAdmins();
     }
   };
 
-  // Send password reset email directly to an admin
-  const handleSendResetEmail = async (admin: AdminUser) => {
-    if (!admin.email || admin.email.startsWith('User #')) {
-      toast({
-        title: 'Email Unknown',
-        description: 'Cannot send reset email without a registered email address.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  // Reset admin password directly to default: Yadawi@123
+  const handleResetPasswordToDefault = async (admin: AdminUser) => {
+    const adminLabel = admin.display_name || admin.email;
+    const confirmed = await confirmResetPasswordAlert(adminLabel, admin.email);
+    if (!confirmed) return;
 
     setActionLoadingId(admin.user_id);
-    const { error } = await resetPasswordForEmail(admin.email);
+    const { error } = await resetAdminPasswordDefault(admin.user_id);
     setActionLoadingId(null);
 
     if (error) {
       toast({
-        title: 'Reset Email Failed',
-        description: error.message,
+        title: 'Reset Password Failed',
+        description: error.message || 'Could not reset admin password. Please run the reset SQL function in Supabase.',
         variant: 'destructive',
       });
     } else {
       toast({
-        title: 'Reset Email Sent',
-        description: `Password recovery link dispatched to ${admin.email}.`,
+        title: 'Password Reset to Default!',
+        description: `Password for ${admin.email} has been reset to: Yadawi@123. The admin can now sign in with Yadawi@123.`,
+        duration: 8000,
       });
     }
   };
@@ -214,9 +211,9 @@ export function AdminManagementModal({
       return;
     }
 
-    if (!confirm(`Are you sure you want to revoke admin privileges for ${admin.display_name || admin.email}?`)) {
-      return;
-    }
+    const adminLabel = admin.display_name || admin.email;
+    const confirmed = await confirmRevokeAdminAlert(adminLabel, admin.email);
+    if (!confirmed) return;
 
     setActionLoadingId(admin.user_id);
     const { error } = await revokeAdminAccount(admin.user_id);
@@ -239,7 +236,19 @@ export function AdminManagementModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] flex flex-col p-0 overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 shadow-2xl">
+      <DialogContent 
+        onPointerDownOutside={(e) => {
+          if (document.querySelector('.swal2-container')) {
+            e.preventDefault();
+          }
+        }}
+        onInteractOutside={(e) => {
+          if (document.querySelector('.swal2-container')) {
+            e.preventDefault();
+          }
+        }}
+        className="w-[95vw] sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] flex flex-col p-0 overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 shadow-2xl"
+      >
         {/* Header */}
         <DialogHeader className="px-5 py-4 sm:px-6 sm:py-5 border-b border-border/60 shrink-0 text-left">
           <div className="flex items-center justify-between gap-4">
@@ -380,13 +389,14 @@ export function AdminManagementModal({
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 text-xs gap-1 rounded-xl border-border/80 hover:border-primary/40"
-                            onClick={() => handleSendResetEmail(adm)}
+                            className="h-8 text-xs gap-1.5 rounded-xl border-amber-500/30 hover:border-amber-500/60 hover:bg-amber-500/10 text-foreground font-medium"
+                            onClick={() => handleResetPasswordToDefault(adm)}
                             disabled={actionLoadingId === adm.user_id}
-                            title="Send password reset email to this admin"
+                            title="Reset password to default: Yadawi@123"
                           >
-                            <KeyRound className="w-3.5 h-3.5 text-primary" />
-                            <span className="hidden sm:inline">Send Reset Link</span>
+                            <KeyRound className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                            <span className="hidden sm:inline">Reset to Default</span>
+                            <span className="sm:hidden">Reset</span>
                           </Button>
 
                           {!isCurrent && (

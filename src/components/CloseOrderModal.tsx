@@ -38,14 +38,14 @@ export const CloseOrderModal: React.FC<CloseOrderModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={isSubmitting ? undefined : onOpenChange}>
-      <DialogContent className="max-w-md rounded-3xl p-6 shadow-card border border-border/80">
+      <DialogContent className="w-[92vw] sm:max-w-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-card border border-border/80">
         <DialogHeader className="pb-3 border-b">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center flex-shrink-0 shadow-xs border border-slate-300 dark:border-slate-700">
-              <Lock className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center flex-shrink-0 shadow-xs border border-slate-300 dark:border-slate-700">
+              <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700 dark:text-slate-300" />
             </div>
             <div>
-              <DialogTitle className="font-display text-2xl font-bold flex items-center gap-2">
+              <DialogTitle className="font-display text-lg sm:text-2xl font-bold flex items-center gap-1.5 sm:gap-2">
                 <span>Close & Lock Order</span>
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5">

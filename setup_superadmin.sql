@@ -189,3 +189,30 @@ AS $$
     AND ur.role IN ('admin', 'superadmin')
   ORDER BY ur.created_at DESC;
 $$;
+
+-- 10. SuperAdmin Function: Reset an admin's password to default 'Yadawi@123'
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
+
+CREATE OR REPLACE FUNCTION public.reset_admin_password_default(_target_user_id UUID)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth, extensions
+AS $$
+BEGIN
+  IF NOT public.is_superadmin(auth.uid()) THEN
+    RAISE EXCEPTION 'Only SuperAdmins are authorized to reset admin passwords.';
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _target_user_id) THEN
+    RAISE EXCEPTION 'Target user not found in the admin system.';
+  END IF;
+
+  UPDATE auth.users
+  SET encrypted_password = extensions.crypt('Yadawi@123', extensions.gen_salt('bf')),
+      updated_at = NOW()
+  WHERE id = _target_user_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.reset_admin_password_default(UUID) TO authenticated;

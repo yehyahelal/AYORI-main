@@ -155,109 +155,109 @@ export default function OrderConfirmation() {
     <div className="min-h-screen flex flex-col bg-slate-50/50 dark:bg-background">
       <Navbar />
 
-      <main className="flex-1 py-10 md:py-16">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <main className="flex-1 py-4 sm:py-8 md:py-12">
+        <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
           {/* Shopify-style Success Header */}
-          <div className="bg-card rounded-3xl p-6 md:p-8 shadow-card border border-border/60 mb-8 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-400 via-primary to-coral" />
+          <div className="bg-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-card border border-border/60 mb-6 sm:mb-8 text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1.5 sm:h-2 bg-gradient-to-r from-emerald-400 via-primary to-coral" />
             
-            <div className="w-16 h-16 md:w-20 md:h-20 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 ring-8 ring-emerald-50 dark:ring-emerald-950/30 animate-bounce-soft">
-              <CheckCircle2 className="w-10 h-10 md:w-12 md:h-12" />
+            <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 ring-4 sm:ring-8 ring-emerald-50 dark:ring-emerald-950/30 animate-bounce-soft">
+              <CheckCircle2 className="w-7 h-7 sm:w-10 sm:h-10 md:w-12 md:h-12" />
             </div>
 
-            <p className="text-sm font-semibold tracking-wider text-emerald-600 dark:text-emerald-400 uppercase mb-1">
+            <p className="text-xs sm:text-sm font-semibold tracking-wider text-emerald-600 dark:text-emerald-400 uppercase mb-1">
               Confirmed & Processing
             </p>
-            <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-2">
+            <h1 className="font-display text-2xl sm:text-3.5xl md:text-5xl font-bold text-foreground mb-1.5 sm:mb-2">
               Thank you, {order.customer_name}!
             </h1>
-            <p className="text-muted-foreground max-w-lg mx-auto text-base">
+            <p className="text-muted-foreground max-w-lg mx-auto text-xs sm:text-sm md:text-base">
               Your order is confirmed. A receipt and shipping updates will be sent to{" "}
               <span className="font-semibold text-foreground">{order.customer_email}</span>.
             </p>
 
             {/* Unique Order ID Showcase Banner (Shopify Style) */}
-            <div className="mt-8 mx-auto max-w-lg bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-2 border-primary/20 rounded-2xl p-5">
-              <div className="text-xs font-bold tracking-wider text-primary uppercase mb-1">
+            <div className="mt-5 sm:mt-8 mx-auto max-w-lg bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/25 rounded-xl sm:rounded-2xl p-3.5 sm:p-5">
+              <div className="text-[11px] sm:text-xs font-bold tracking-wider text-primary uppercase mb-1">
                 Your Unique Order ID
               </div>
-              <div className="flex items-center justify-center gap-3">
-                <span className="font-mono text-3xl md:text-4xl font-extrabold text-primary tracking-tight">
+              <div className="flex items-center justify-center gap-2 sm:gap-3">
+                <span className="font-mono text-2xl sm:text-3xl md:text-4xl font-extrabold text-primary tracking-tight">
                   {orderNumberDisplay}
                 </span>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleCopyOrderId}
-                  className="bg-card hover:bg-primary hover:text-white transition-all shadow-sm font-semibold gap-1.5"
+                  className="h-8 px-2.5 sm:px-3 text-xs bg-card hover:bg-primary hover:text-white transition-all shadow-sm font-semibold gap-1"
                 >
                   {hasCopied ? (
                     <>
-                      <Check className="w-4 h-4 text-emerald-500" />
+                      <Check className="w-3.5 h-3.5 text-emerald-500" />
                       <span>Copied!</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4" />
-                      <span>Copy ID</span>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy</span>
                     </>
                   )}
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
+              <p className="text-[11px] sm:text-xs text-muted-foreground mt-1.5 sm:mt-2">
                 Save this ID to search your order in the <Link to="/orders" className="text-primary font-bold underline">Order List</Link> or quote it to support for fast escalation assistance.
               </p>
             </div>
           </div>
 
           {/* Shopify Order Progress Stepper */}
-          <div className="bg-card rounded-2xl p-6 shadow-sm border border-border/60 mb-8">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-6">
+          <div className="bg-card rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-border/60 mb-6 sm:mb-8">
+            <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4 sm:mb-6">
               Order Progress
             </h2>
-            <div className="grid grid-cols-4 gap-2 relative">
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 relative">
               <div className="text-center">
-                <div className="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto mb-2 font-bold shadow-sm">
-                  <Check className="w-5 h-5" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto mb-1.5 sm:mb-2 font-bold shadow-sm">
+                  <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <p className="text-xs font-bold text-foreground">Confirmed</p>
-                <p className="text-[11px] text-muted-foreground hidden sm:block">Order placed</p>
+                <p className="text-[11px] sm:text-xs font-bold text-foreground">Confirmed</p>
+                <p className="text-[10px] text-muted-foreground hidden sm:block">Order placed</p>
               </div>
 
               <div className="text-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 font-bold shadow-sm ${
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mx-auto mb-1.5 sm:mb-2 font-bold shadow-sm ${
                   order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered'
                     ? 'bg-primary text-white ring-4 ring-primary/20'
                     : 'bg-primary/20 text-primary animate-pulse'
                 }`}>
-                  <Package className="w-5 h-5" />
+                  <Package className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <p className="text-xs font-bold text-foreground">Processing</p>
-                <p className="text-[11px] text-muted-foreground hidden sm:block">Preparing plushies</p>
+                <p className="text-[11px] sm:text-xs font-bold text-foreground">Processing</p>
+                <p className="text-[10px] text-muted-foreground hidden sm:block">Preparing plushies</p>
               </div>
 
               <div className="text-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 font-bold ${
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mx-auto mb-1.5 sm:mb-2 font-bold ${
                   order.status === 'shipped' || order.status === 'delivered'
                     ? 'bg-primary text-white shadow-sm'
                     : 'bg-muted text-muted-foreground'
                 }`}>
-                  <Truck className="w-5 h-5" />
+                  <Truck className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <p className="text-xs font-bold text-foreground">On the Way</p>
-                <p className="text-[11px] text-muted-foreground hidden sm:block">Dispatched courier</p>
+                <p className="text-[11px] sm:text-xs font-bold text-foreground">On the Way</p>
+                <p className="text-[10px] text-muted-foreground hidden sm:block">Dispatched courier</p>
               </div>
 
               <div className="text-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 font-bold ${
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mx-auto mb-1.5 sm:mb-2 font-bold ${
                   order.status === 'delivered'
                     ? 'bg-emerald-500 text-white shadow-sm'
                     : 'bg-muted text-muted-foreground'
                 }`}>
-                  <CheckCircle2 className="w-5 h-5" />
+                  <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <p className="text-xs font-bold text-foreground">Delivered</p>
-                <p className="text-[11px] text-muted-foreground hidden sm:block">Enjoy your plushie!</p>
+                <p className="text-[11px] sm:text-xs font-bold text-foreground">Delivered</p>
+                <p className="text-[10px] text-muted-foreground hidden sm:block">Enjoy your plushie!</p>
               </div>
             </div>
           </div>

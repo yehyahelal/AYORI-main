@@ -23,7 +23,9 @@ interface AuthContextType {
     roleToAssign?: 'admin' | 'superadmin'
   ) => Promise<{ error: Error | null; user?: any }>;
   revokeAdminAccount: (targetUserId: string) => Promise<{ error: Error | null }>;
+  resetAdminPasswordDefault: (targetUserId: string) => Promise<{ error: Error | null }>;
   resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
+  verifyRecoveryOtp: (email: string, token: string) => Promise<{ error: Error | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
 }
 
@@ -454,12 +456,79 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const resetAdminPasswordDefault = async (targetUserId: string): Promise<{ error: Error | null }> => {
+    if (role !== 'superadmin') {
+      return { error: new Error('Only a SuperAdmin can reset admin passwords.') };
+    }
+
+    try {
+      const { error } = await (supabase as any).rpc('reset_admin_password_default', {
+        _target_user_id: targetUserId,
+      });
+
+      if (error) {
+        return { error: new Error(error.message || 'Failed to reset password to default.') };
+      }
+
+      return { error: null };
+    } catch (err: any) {
+      return { error: err };
+    }
+  };
+
   const resetPasswordForEmail = async (email: string): Promise<{ error: Error | null }> => {
     const redirectUrl = `${window.location.origin}/auth?reset=true`;
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: redirectUrl,
     });
     return { error: error as Error | null };
+  };
+
+  const verifyRecoveryOtp = async (email: string, rawToken: string): Promise<{ error: Error | null }> => {
+    try {
+      let token = rawToken.trim().replace(/[\s-]/g, '');
+      const cleanEmail = email.trim().toLowerCase();
+
+      // If user pasted a full URL or query string with token_hash
+      if (token.includes('token_hash=')) {
+        const hashMatch = token.match(/token_hash=([^&]+)/);
+        if (hashMatch) {
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash: decodeURIComponent(hashMatch[1]),
+            type: 'recovery',
+          });
+          if (!error && data?.user) {
+            setUser(data.user);
+            setSession(data.session);
+            await fetchUserRole(data.user.id, data.user);
+          }
+          return { error: error as Error | null };
+        }
+      }
+
+      // If user pasted a URL with token=
+      if (token.includes('token=')) {
+        const tokenMatch = token.match(/token=([^&]+)/);
+        if (tokenMatch) {
+          token = decodeURIComponent(tokenMatch[1]);
+        }
+      }
+
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: cleanEmail,
+        token: token,
+        type: 'recovery',
+      });
+
+      if (!error && data?.user) {
+        setUser(data.user);
+        setSession(data.session);
+        await fetchUserRole(data.user.id, data.user);
+      }
+      return { error: error as Error | null };
+    } catch (err: any) {
+      return { error: err };
+    }
   };
 
   const updatePassword = async (newPassword: string): Promise<{ error: Error | null }> => {
@@ -497,7 +566,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       createAdminAccount,
       revokeAdminAccount,
+      resetAdminPasswordDefault,
       resetPasswordForEmail,
+      verifyRecoveryOtp,
       updatePassword
     }}>
       {children}

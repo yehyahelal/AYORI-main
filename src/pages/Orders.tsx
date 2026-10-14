@@ -455,12 +455,12 @@ export default function Orders() {
     <div className="min-h-screen flex flex-col bg-slate-50/50 dark:bg-background">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
+      <main className="flex-1 container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-6xl">
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">
+              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
                 {isAdmin ? (isAdminRoute ? 'Admin Orders Dashboard' : 'Orders Management') : 'My Orders'}
               </h1>
               {isAdmin && (
@@ -469,7 +469,7 @@ export default function Orders() {
                 </Badge>
               )}
             </div>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-xs sm:text-sm">
               {isAdmin 
                 ? 'Search, manage, and escalate customer orders by unique Order ID (#123456).'
                 : 'Track your plushie orders and check status using your unique Order ID (#123456).'
@@ -477,33 +477,33 @@ export default function Orders() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {isAdmin && (
               <>
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={() => setIsEmailModalOpen(true)}
-                  className="gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-foreground h-9 text-xs sm:text-sm rounded-xl"
+                  className="gap-1.5 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-foreground h-8 sm:h-9 text-xs sm:text-sm rounded-xl px-2.5 sm:px-3"
                 >
-                  <Mail className="h-4 w-4 text-primary" />
-                  Email Alerts
+                  <Mail className="h-3.5 w-3.5 text-primary" />
+                  <span>Email Alerts</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="h-9 text-xs sm:text-sm rounded-xl">
+                <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="h-8 sm:h-9 text-xs sm:text-sm rounded-xl px-2.5 sm:px-3">
                   Manage Products
                 </Button>
               </>
             )}
-            <Button variant="playful" size="sm" onClick={() => navigate('/products')} className="h-9 text-xs sm:text-sm rounded-xl">
+            <Button variant="playful" size="sm" onClick={() => navigate('/products')} className="h-8 sm:h-9 text-xs sm:text-sm rounded-xl px-2.5 sm:px-3">
               Shop Plushies
             </Button>
           </div>
         </div>
 
         {/* Quick Search / Tracking Banner for Escalations */}
-        <Card className="rounded-2xl border-border/60 shadow-sm mb-6 bg-card">
-          <CardContent className="p-4 md:p-6">
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <Card className="rounded-xl sm:rounded-2xl border-border/60 shadow-sm mb-4 sm:mb-6 bg-card">
+          <CardContent className="p-3 sm:p-5">
+            <div className="flex flex-col md:flex-row gap-3 sm:gap-4 items-center justify-between">
               <div className="w-full md:w-auto flex-1">
                 <div className="relative">
                   <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -512,7 +512,7 @@ export default function Orders() {
                     placeholder="Search by Order ID (e.g. #123456), Customer Name, Email, or Phone..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-9 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary"
+                    className="pl-9 pr-8 h-10 rounded-xl bg-background border-border/80 text-xs sm:text-sm focus-visible:ring-primary"
                   />
                   {searchQuery && (
                     <button 

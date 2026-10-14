@@ -96,14 +96,14 @@ const ProductDetails = () => {
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <Navbar />
-            <main className="flex-1 py-8 md:py-16">
-                <div className="container mx-auto px-4">
-                    <div className="grid md:grid-cols-2 gap-8 lg:gap-16">
+            <main className="flex-1 py-4 sm:py-8 md:py-12">
+                <div className="container mx-auto px-3 sm:px-4">
+                    <div className="grid md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
                         {/* Image Gallery */}
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                             <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
                                 <DialogTrigger asChild>
-                                    <div className="aspect-square rounded-3xl overflow-hidden bg-muted relative group cursor-zoom-in">
+                                    <div className="aspect-square rounded-2xl sm:rounded-3xl overflow-hidden bg-muted relative group cursor-zoom-in border border-border/40">
                                         {currentImageUrl ? (
                                             <img
                                                 src={currentImageUrl}
@@ -111,8 +111,8 @@ const ProductDetails = () => {
                                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                             />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                                                No image available
+                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-4xl sm:text-6xl">
+                                                🧸
                                             </div>
                                         )}
 
@@ -120,18 +120,18 @@ const ProductDetails = () => {
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm hover:bg-white text-destructive hover:text-destructive z-10"
+                                            className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 h-8 w-8 sm:h-9 sm:w-9 bg-white/80 backdrop-blur-sm hover:bg-white text-destructive hover:text-destructive z-10 rounded-full"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 toggleWishlist();
                                             }}
                                         >
-                                            <Heart className={`w-6 h-6 ${isWishlisted ? "fill-current" : ""}`} />
+                                            <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isWishlisted ? "fill-current" : ""}`} />
                                         </Button>
 
                                         {/* Zoom Hint */}
-                                        <div className="absolute bottom-4 right-4 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                            <Maximize2 className="w-5 h-5" />
+                                        <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 bg-black/50 text-white p-1.5 sm:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                            <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
                                         </div>
                                     </div>
                                 </DialogTrigger>
@@ -151,13 +151,13 @@ const ProductDetails = () => {
 
                             {/* Thumbnail Gallery */}
                             {hasImages && images.length > 1 && (
-                                <div className="flex gap-4 overflow-auto pb-2">
+                                <div className="flex gap-2 sm:gap-3 overflow-auto pb-1 custom-scrollbar">
                                     {images.map((image, index) => (
                                         <button
                                             key={index}
                                             onClick={() => setSelectedImageIndex(index)}
-                                            className={`relative flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden border-2 transition-all ${
-                                                selectedImageIndex === index ? "border-primary" : "border-transparent hover:border-primary/50"
+                                            className={`relative flex-shrink-0 w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all ${
+                                                selectedImageIndex === index ? "border-primary ring-2 ring-primary/20" : "border-transparent hover:border-primary/50"
                                             }`}
                                         >
                                             <img
@@ -172,45 +172,45 @@ const ProductDetails = () => {
                         </div>
 
                         {/* Product Info */}
-                        <div className="space-y-8">
+                        <div className="space-y-4 sm:space-y-6 md:space-y-8">
                             <div>
-                                <Badge variant="secondary" className="mb-4">{category || "Product"}</Badge>
-                                <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 text-foreground">{title}</h1>
-                                <p className="text-3xl font-bold text-primary">
+                                <Badge variant="secondary" className="mb-2 sm:mb-3 text-xs">{category || "Product"}</Badge>
+                                <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3 text-foreground">{title}</h1>
+                                <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">
                                     EGP {Number(price).toFixed(2)}
                                 </p>
                             </div>
 
                             <div className="prose prose-neutral dark:prose-invert max-w-none">
-                                <p className="text-muted-foreground text-lg leading-relaxed">{description}</p>
+                                <p className="text-muted-foreground text-xs sm:text-sm md:text-base leading-relaxed">{description}</p>
                             </div>
 
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-4">
-                                    <span className="font-medium">Quantity:</span>
-                                    <div className="flex items-center gap-2 border rounded-full p-1 bg-card">
+                            <div className="space-y-4 sm:space-y-6 pt-2">
+                                <div className="flex items-center gap-3 sm:gap-4">
+                                    <span className="font-medium text-xs sm:text-sm">Quantity:</span>
+                                    <div className="flex items-center gap-1.5 sm:gap-2 border rounded-full p-1 bg-card">
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="rounded-full h-8 w-8"
+                                            className="rounded-full h-7 w-7 sm:h-8 sm:w-8"
                                             onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                             disabled={product.inventory_count === 0}
                                         >
-                                            <Minus className="w-4 h-4" />
+                                            <Minus className="w-3.5 h-3.5" />
                                         </Button>
-                                        <span className="w-8 text-center font-bold">{quantity}</span>
+                                        <span className="w-6 sm:w-8 text-center font-bold text-xs sm:text-sm">{quantity}</span>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="rounded-full h-8 w-8"
+                                            className="rounded-full h-7 w-7 sm:h-8 sm:w-8"
                                             onClick={() => setQuantity(Math.min(product.inventory_count || 0, quantity + 1))}
                                             disabled={product.inventory_count === 0 || quantity >= (product.inventory_count || 0)}
                                         >
-                                            <Plus className="w-4 h-4" />
+                                            <Plus className="w-3.5 h-3.5" />
                                         </Button>
                                     </div>
                                     {product.inventory_count === 0 && (
-                                        <span className="text-sm text-destructive font-semibold">Out of Stock</span>
+                                        <span className="text-xs sm:text-sm text-destructive font-semibold">Out of Stock</span>
                                     )}
                                 </div>
 
@@ -218,11 +218,11 @@ const ProductDetails = () => {
                                     <Button 
                                         variant={product.inventory_count === 0 ? "secondary" : "hero"} 
                                         size="lg" 
-                                        className="flex-1 text-lg h-14" 
+                                        className="flex-1 text-sm sm:text-base md:text-lg h-11 sm:h-12 md:h-14 rounded-xl sm:rounded-2xl" 
                                         onClick={handleAddToCart}
                                         disabled={product.inventory_count === 0}
                                     >
-                                        <ShoppingCart className="w-5 h-5 mr-2" />
+                                        <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                                         {product.inventory_count === 0 ? "Sold Out" : "Add to Cart"}
                                     </Button>
                                 </div>

@@ -19,6 +19,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { AdminEmailSettingsModal } from '@/components/AdminEmailSettingsModal';
 import { AdminManagementModal } from '@/components/AdminManagementModal';
 import { AdminChangePasswordModal } from '@/components/AdminChangePasswordModal';
+import { confirmDeleteProductAlert } from '@/lib/sweetAlert';
 
 export default function Admin() {
   const { user, isAdmin, isSuperAdmin, loading } = useAuth();
@@ -217,7 +218,8 @@ export default function Admin() {
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete ${productTitle}?`)) return;
+    const confirmed = await confirmDeleteProductAlert(productTitle);
+    if (!confirmed) return;
 
     try {
       const { error } = await supabase.from('products').delete().eq('id', productId);

@@ -43,16 +43,16 @@ export const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={isSubmitting ? undefined : onOpenChange}>
-      <DialogContent className="max-w-md rounded-3xl p-6 shadow-card border border-border/80">
+      <DialogContent className="w-[92vw] sm:max-w-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-card border border-border/80">
         <DialogHeader className="pb-3 border-b">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 flex items-center justify-center flex-shrink-0 shadow-xs">
-              <XCircle className="w-6 h-6" />
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 flex items-center justify-center flex-shrink-0 shadow-xs">
+              <XCircle className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <DialogTitle className="font-display text-2xl font-bold flex items-center gap-2">
+              <DialogTitle className="font-display text-lg sm:text-2xl font-bold flex items-center gap-1.5 sm:gap-2">
                 <span>Cancel Order</span>
-                <span className="font-mono text-primary text-xl">{orderNumber}</span>
+                <span className="font-mono text-primary text-base sm:text-xl">{orderNumber}</span>
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-0.5">
                 Customer: <span className="font-semibold text-foreground">{order.customer_name}</span>
