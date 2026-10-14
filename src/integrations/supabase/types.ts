@@ -44,20 +44,26 @@ export type Database = {
       user_roles: {
         Row: {
           created_at: string
+          display_name: string | null
+          email: string | null
           id: string
-          role: Database["public"]["Enums"]["app_role"]
+          role: Database["public"]["Enums"]["app_role"] | string
           user_id: string
         }
         Insert: {
           created_at?: string
+          display_name?: string | null
+          email?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          role?: Database["public"]["Enums"]["app_role"] | string
           user_id: string
         }
         Update: {
           created_at?: string
+          display_name?: string | null
+          email?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          role?: Database["public"]["Enums"]["app_role"] | string
           user_id?: string
         }
         Relationships: []

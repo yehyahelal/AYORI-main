@@ -98,13 +98,19 @@ const Checkout = () => {
       const fullAddress = formData.city ? `${formData.address}, ${formData.city}` : formData.address;
       const uniqueOrderNumber = generateOrderNumber();
 
+      const isValidUuid = (val?: string | null): boolean => {
+        return typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+      };
+
+      const validUserId = isValidUuid(activeUser?.id) ? activeUser!.id : null;
+
       // 1. Create the order
       let order: any = null;
 
       const primaryAttempt = await supabase
         .from('orders')
         .insert({
-          user_id: activeUser?.id || null,
+          user_id: validUserId,
           order_number: uniqueOrderNumber,
           customer_name: formData.name,
           customer_email: cleanEmail,
@@ -127,7 +133,7 @@ const Checkout = () => {
           const fallbackAttempt = await supabase
             .from('orders')
             .insert({
-              user_id: activeUser?.id || null,
+              user_id: validUserId,
               customer_name: formData.name,
               customer_email: cleanEmail,
               shipping_address: fullAddress,

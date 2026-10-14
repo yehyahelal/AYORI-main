@@ -69,9 +69,9 @@ export function AuthForm({ initialView = 'customer', onSuccess }: AuthFormProps)
     setIsLoading(false);
 
     if (error) {
-      if (error.message?.includes('Admin')) {
+      if (error.message?.includes('Admin') || error.message?.toLowerCase().includes('rate limit')) {
         toast({
-          title: 'Admin Account Detected',
+          title: 'Admin Login Required',
           description: error.message,
           variant: 'default',
         });
@@ -230,17 +230,7 @@ export function AuthForm({ initialView = 'customer', onSuccess }: AuthFormProps)
     <div className="w-full">
       {/* VIEW: CUSTOMER PASSWORDLESS LOGIN */}
       {view === 'customer' && (
-        <div className="space-y-5">
-          <div className="text-center space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Instant Login & Checkout</span>
-            </div>
-            <p className="text-xs text-muted-foreground pt-1">
-              Enter your email to sign in or create an account automatically. No password required!
-            </p>
-          </div>
-
+        <div className="space-y-4">
           <form onSubmit={handleCustomerSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="customer-email" className="text-xs font-semibold text-foreground">
@@ -286,7 +276,7 @@ export function AuthForm({ initialView = 'customer', onSuccess }: AuthFormProps)
               ) : (
                 <Sparkles className="h-4 w-4 mr-2" />
               )}
-              Continue with Email
+              Enter Email & Continue
             </Button>
           </form>
 

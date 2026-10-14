@@ -7,18 +7,8 @@ import { useUIStore } from '@/stores/uiStore';
 import { Heart } from 'lucide-react';
 
 export function AuthModal() {
-    const { user, loading } = useAuth();
+    const { loading } = useAuth();
     const { isAuthModalOpen, openAuthModal, closeAuthModal } = useUIStore();
-    const [hasSeenModal, setHasSeenModal] = useState(() => {
-        return sessionStorage.getItem('hasSeenAuthModal') === 'true';
-    });
-
-    useEffect(() => {
-        // If not loading, no user, and hasn't seen modal yet
-        if (!loading && !user && !hasSeenModal) {
-            openAuthModal();
-        }
-    }, [user, loading, hasSeenModal, openAuthModal]);
 
     const handleClose = () => {
         closeAuthModal();
@@ -48,7 +38,7 @@ export function AuthModal() {
                     </div>
                     <DialogTitle className="font-display text-2xl text-primary text-center">Welcome to Yadawi</DialogTitle>
                     <DialogDescription className="text-center">
-                        Please sign in to continue to the magical world of plush toys.
+                        Please enter your email address to continue to the magical world of plush toys.
                     </DialogDescription>
                 </DialogHeader>
                 <AuthForm onSuccess={() => closeAuthModal()} />

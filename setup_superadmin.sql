@@ -10,7 +10,47 @@
 ALTER TABLE public.user_roles ALTER COLUMN role TYPE text;
 ALTER TABLE public.user_roles ALTER COLUMN role SET DEFAULT 'user';
 
--- 2. Add check constraint to ensure only valid roles are stored
+-- 2. Add display_name and email columns for easy visibility in Supabase Table Editor
+ALTER TABLE public.user_roles ADD COLUMN IF NOT EXISTS display_name TEXT;
+ALTER TABLE public.user_roles ADD COLUMN IF NOT EXISTS email TEXT;
+
+-- Backfill existing records
+UPDATE public.user_roles ur
+SET 
+  email = u.email,
+  display_name = COALESCE(p.display_name, u.raw_user_meta_data->>'display_name', split_part(u.email, '@', 1))
+FROM auth.users u
+LEFT JOIN public.profiles p ON p.user_id = u.id
+WHERE ur.user_id = u.id;
+
+-- Auto-sync trigger for new records
+CREATE OR REPLACE FUNCTION public.sync_user_roles_info()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+BEGIN
+  IF NEW.email IS NULL OR NEW.display_name IS NULL THEN
+    SELECT 
+      u.email,
+      COALESCE(p.display_name, u.raw_user_meta_data->>'display_name', split_part(u.email, '@', 1))
+    INTO NEW.email, NEW.display_name
+    FROM auth.users u
+    LEFT JOIN public.profiles p ON p.user_id = u.id
+    WHERE u.id = NEW.user_id;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_sync_user_roles_info ON public.user_roles;
+CREATE TRIGGER trg_sync_user_roles_info
+BEFORE INSERT OR UPDATE ON public.user_roles
+FOR EACH ROW
+EXECUTE FUNCTION public.sync_user_roles_info();
+
+-- 3. Add check constraint to ensure only valid roles are stored
 ALTER TABLE public.user_roles DROP CONSTRAINT IF EXISTS user_roles_role_check;
 ALTER TABLE public.user_roles ADD CONSTRAINT user_roles_role_check 
   CHECK (role IN ('superadmin', 'admin', 'user'));

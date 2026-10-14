@@ -14,11 +14,7 @@ const Cart = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleCheckout = async () => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
+  const handleCheckout = () => {
     navigate('/checkout');
   };
 
